@@ -1,5 +1,14 @@
+<?php 
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+    require "connect.php";
+
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,11 +16,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
-            <a href="index.html" class="logo">
+            <a href="index.php" class="logo">
                 <i class="fas fa-dumbbell"></i>
                 <span>SportCoach</span>
             </a>
@@ -33,14 +43,14 @@
             <h2>Créer un compte</h2>
             <p>Rejoignez notre communauté sportive</p>
         </div>
-        <form id="registerForm" novalidate>
+        <form id="registerForm" action="register_handling" method="post" novalidate>
             <div class="form-group">
                 <label for="userType">Je m'inscris en tant que</label>
                 <div class="input-group">
                     <i class="fas fa-user-tag"></i>
-                    <select id="userType" class="form-control" required>
+                    <select name="useraType" id="userType" class="form-control" required>
                         <option value="">Sélectionnez votre rôle</option>
-                        <option value="athlete">Sportif</option>
+                        <option value="sportif">Sportif</option>
                         <option value="coach">Coach professionnel</option>
                     </select>
                 </div>
@@ -52,7 +62,7 @@
                     <label for="firstName">Prénom</label>
                     <div class="input-group">
                         <i class="fas fa-user"></i>
-                        <input type="text" id="firstName" class="form-control" placeholder="Votre prénom" required>
+                        <input type="text" name="prénom" id="firstName" class="form-control" placeholder="Votre prénom" required>
                     </div>
                     <span class="error-message" id="firstNameError">Le prénom est requis (min. 2 caractères)</span>
                 </div>
@@ -61,7 +71,7 @@
                     <label for="lastName">Nom</label>
                     <div class="input-group">
                         <i class="fas fa-user"></i>
-                        <input type="text" id="lastName" class="form-control" placeholder="Votre nom" required>
+                        <input type="text" name="nom" id="lastName" class="form-control" placeholder="Votre nom" required>
                     </div>
                     <span class="error-message" id="lastNameError">Le nom est requis (min. 2 caractères)</span>
                 </div>
@@ -71,7 +81,7 @@
                 <label for="email">Email</label>
                 <div class="input-group">
                     <i class="fas fa-envelope"></i>
-                    <input type="email" id="email" class="form-control" placeholder="votre@email.com" required>
+                    <input type="email" name="email" id="email" class="form-control" placeholder="votre@email.com" required>
                 </div>
                 <span class="error-message" id="emailError">Veuillez entrer un email valide</span>
             </div>
@@ -80,7 +90,7 @@
                 <label for="phone">Téléphone</label>
                 <div class="input-group">
                     <i class="fas fa-phone"></i>
-                    <input type="tel" id="phone" class="form-control" placeholder="+212 6XX-XXXXXX" required>
+                    <input type="tel" name="phone" id="phone" class="form-control" placeholder="+212 6XX-XXXXXX" required>
                 </div>
                 <span class="error-message" id="phoneError">Format: +212 6XX-XXXXXX ou 06XX-XXXXXX</span>
             </div>
@@ -89,7 +99,7 @@
                 <label for="password">Mot de passe</label>
                 <div class="input-group">
                     <i class="fas fa-lock"></i>
-                    <input type="password" id="password" class="form-control" placeholder="Min. 8 caractères" required>
+                    <input type="password" name="password" id="password" class="form-control" placeholder="Min. 8 caractères" required>
                 </div>
                 <span class="error-message" id="passwordError">8 caractères min. (majuscule, minuscule, chiffre)</span>
             </div>
@@ -98,7 +108,7 @@
                 <label for="confirmPassword">Confirmer le mot de passe</label>
                 <div class="input-group">
                     <i class="fas fa-lock"></i>
-                    <input type="password" id="confirmPassword" class="form-control" placeholder="Confirmez votre mot de passe" required>
+                    <input type="password" name="confirmPassword" id="confirmPassword" class="form-control" placeholder="Confirmez votre mot de passe" required>
                 </div>
                 <span class="error-message" id="confirmPasswordError">Les mots de passe ne correspondent pas</span>
             </div>
@@ -110,6 +120,14 @@
                     <div class="input-group">
                         <i class="fas fa-medal"></i>
                         <input type="text" id="specialties" class="form-control" placeholder="Football, Tennis, Natation...">
+                        <select name="useraType" id="userType" class="form-control" required>
+                            <option value="">Sélectionnez votre rôle</option>
+                            <option value="Football">Football</option>
+                            <option value="Tennis">Tennis</option>
+                            <option value="Natation">Natation</option>
+                            <option value="Preparation physique">Preparation physique</option>
+                            <option value="Boxe">Boxe</option>
+                        </select>
                     </div>
                 </div>
 
@@ -126,7 +144,7 @@
                 <label style="display: flex; align-items: start; gap: 10px; cursor: pointer;">
                     <input type="checkbox" id="terms" required style="margin-top: 4px;">
                     <span style="font-size: 14px; color: var(--text-gray);">
-                        J'accepte les <a href="#" style="color: var(--primary-gold); font-weight: 600;">conditions d'utilisation</a> 
+                        J'accepte les <a href="#" style="color: var(--primary-gold); font-weight: 600;">conditions d'utilisation</a>
                         et la <a href="#" style="color: var(--primary-gold); font-weight: 600;">politique de confidentialité</a>
                     </span>
                 </label>
@@ -192,4 +210,5 @@
     <script src="auth.js"></script>
     <script src="main.js"></script>
 </body>
+
 </html>

@@ -1,3 +1,12 @@
+<?php 
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+    require "connect.php";
+    
+?>
+
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -11,7 +20,7 @@
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
-            <a href="index.html" class="logo">
+            <a href="index.php" class="logo">
                 <i class="fas fa-dumbbell"></i>
                 <span>SportCoach</span>
             </a>
@@ -33,7 +42,7 @@
             <h2>Connexion</h2>
             <p>Accédez à votre espace personnel</p>
         </div>
-        <form id="loginForm" novalidate>
+        <form id="loginForm" action="login_handling" method="post" novalidate>
             <div class="form-group">
                 <label for="email">Email</label>
                 <div class="input-group">

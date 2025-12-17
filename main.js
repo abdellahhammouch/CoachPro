@@ -1,25 +1,22 @@
 // ==================== MOBILE MENU ====================
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const mobileMenuToggle = document.getElementById('mobileMenuToggle');
     const navMenu = document.getElementById('navMenu');
 
     if (mobileMenuToggle && navMenu) {
-        mobileMenuToggle.addEventListener('click', function() {
-            navMenu.classList.toggle('active');
-            const icon = this.querySelector('i');
-            if (navMenu.classList.contains('active')) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
+        mobileMenuToggle.addEventListener('click', function () {
+            // Afficher ou cacher le menu
+            if (navMenu.style.display === 'flex') {
+                navMenu.style.display = 'none';
             } else {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
+                navMenu.style.display = 'flex';
             }
         });
     }
 });
 
 // ==================== NAVBAR SCROLL EFFECT ====================
-window.addEventListener('scroll', function() {
+window.addEventListener('scroll', function () {
     const navbar = document.getElementById('navbar');
     if (navbar) {
         if (window.scrollY > 50) {
@@ -34,7 +31,7 @@ window.addEventListener('scroll', function() {
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
-        modal.classList.add('show');
+        modal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
     }
 }
@@ -42,105 +39,95 @@ function openModal(modalId) {
 function closeModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) {
-        modal.classList.remove('show');
+        modal.style.display = 'none';
         document.body.style.overflow = 'auto';
     }
 }
 
-// Close modal when clicking outside
-window.addEventListener('click', function(event) {
+// Fermer modal en cliquant à l'extérieur
+window.addEventListener('click', function (event) {
     if (event.target.classList.contains('modal')) {
-        closeModal(event.target.id);
-    }
-});
-
-// Close modal with Escape key
-document.addEventListener('keydown', function(event) {
-    if (event.key === 'Escape') {
-        const modals = document.querySelectorAll('.modal.show');
-        modals.forEach(modal => {
-            closeModal(modal.id);
-        });
+        event.target.style.display = 'none';
+        document.body.style.overflow = 'auto';
     }
 });
 
 // ==================== DASHBOARD SECTION NAVIGATION ====================
 function showSection(sectionName) {
-    // Hide all sections
+    // Cacher toutes les sections
     const sections = document.querySelectorAll('.dashboard-section');
-    sections.forEach(section => {
-        section.style.display = 'none';
-    });
+    for (let i = 0; i < sections.length; i++) {
+        sections[i].style.display = 'none';
+    }
 
-    // Show selected section
+    // Afficher la section sélectionnée
     const targetSection = document.getElementById(sectionName + 'Section');
     if (targetSection) {
         targetSection.style.display = 'block';
     }
 
-    // Update active link in sidebar
+    // Retirer active de tous les liens
     const links = document.querySelectorAll('.sidebar-link');
-    links.forEach(link => {
-        link.classList.remove('active');
-    });
-    e.target.closest('.sidebar-link').classList.add('active');
-
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-// ==================== FORM VALIDATION UTILITIES ====================
-const ValidationPatterns = {
-    email: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-    phone: /^(\+212|0)[5-7][0-9]{8}$/,
-    password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/,
-    name: /^[a-zA-ZÀ-ÿ\s]{2,}$/
-};
-
-function validateField(fieldId, pattern, errorId) {
-    const field = document.getElementById(fieldId);
-    const error = document.getElementById(errorId);
-    
-    if (!field) return true;
-    
-    const value = field.value.trim();
-    const isValid = pattern.test(value);
-    
-    if (!isValid && value !== '') {
-        field.classList.add('error');
-        if (error) error.classList.add('show');
-    } else {
-        field.classList.remove('error');
-        if (error) error.classList.remove('show');
+    for (let i = 0; i < links.length; i++) {
+        links[i].classList.remove('active');
     }
-    
-    return isValid || value === '';
+
+    // Ajouter active au lien cliqué
+    event.target.closest('.sidebar-link').classList.add('active');
+
+    // Scroll en haut
+    window.scrollTo(0, 0);
 }
 
-function showError(fieldId, errorId, show = true) {
+// ==================== FORM VALIDATION ====================
+function validateEmail(email) {
+    const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return re.test(email);
+}
+
+function validatePhone(phone) {
+    const re = /^(\+212|0)[5-7][0-9]{8}$/;
+    return re.test(phone);
+}
+
+function validatePassword(password) {
+    const re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+    return re.test(password);
+}
+
+function validateName(name) {
+    const re = /^[a-zA-ZÀ-ÿ\s]{2,}$/;
+    return re.test(name);
+}
+
+function showError(fieldId, errorId) {
     const field = document.getElementById(fieldId);
     const error = document.getElementById(errorId);
-    
+
     if (field && error) {
-        if (show) {
-            field.classList.add('error');
-            error.classList.add('show');
-        } else {
-            field.classList.remove('error');
-            error.classList.remove('show');
-        }
+        field.classList.add('error');
+        error.style.display = 'block';
     }
 }
 
-// ==================== SWEETALERT NOTIFICATIONS ====================
+function hideError(fieldId, errorId) {
+    const field = document.getElementById(fieldId);
+    const error = document.getElementById(errorId);
+
+    if (field && error) {
+        field.classList.remove('error');
+        error.style.display = 'none';
+    }
+}
+
+// ==================== SWEETALERT FUNCTIONS ====================
 function showSuccessAlert(title, text) {
     if (typeof Swal !== 'undefined') {
         Swal.fire({
             icon: 'success',
             title: title,
             text: text,
-            confirmButtonColor: '#FEBA17',
-            confirmButtonText: 'OK'
+            confirmButtonColor: '#FEBA17'
         });
     } else {
         alert(title + '\n' + text);
@@ -153,8 +140,7 @@ function showErrorAlert(title, text) {
             icon: 'error',
             title: title,
             text: text,
-            confirmButtonColor: '#FEBA17',
-            confirmButtonText: 'OK'
+            confirmButtonColor: '#FEBA17'
         });
     } else {
         alert(title + '\n' + text);
@@ -170,119 +156,55 @@ function showConfirmAlert(title, text, confirmCallback) {
             showCancelButton: true,
             confirmButtonColor: '#FEBA17',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Oui, confirmer',
+            confirmButtonText: 'Oui',
             cancelButtonText: 'Annuler'
-        }).then((result) => {
-            if (result.isConfirmed && typeof confirmCallback === 'function') {
+        }).then(function (result) {
+            if (result.isConfirmed && confirmCallback) {
                 confirmCallback();
             }
         });
     } else {
         if (confirm(title + '\n' + text)) {
-            if (typeof confirmCallback === 'function') {
+            if (confirmCallback) {
                 confirmCallback();
             }
         }
     }
 }
 
-// ==================== SMOOTH SCROLL ====================
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        const href = this.getAttribute('href');
-        if (href !== '#' && href.length > 1) {
-            e.preventDefault();
-            const target = document.querySelector(href);
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        }
-    });
-});
-
 // ==================== LOADING INDICATOR ====================
+
 function showLoading() {
-    const loading = document.createElement('div');
-    loading.id = 'loadingOverlay';
-    loading.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 9999;
-    `;
-    loading.innerHTML = `
-        <div style="text-align: center; color: white;">
-            <i class="fas fa-spinner fa-spin" style="font-size: 48px; color: #FEBA17;"></i>
-            <p style="margin-top: 20px; font-size: 18px;">Chargement...</p>
-        </div>
-    `;
-    document.body.appendChild(loading);
+    let loading = document.getElementById('loadingOverlay');
+    if (!loading) {
+        loading = document.createElement('div');
+        loading.id = 'loadingOverlay';
+        loading.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 9999;';
+        loading.innerHTML = '<div style="text-align: center; color: white;"><i class="fas fa-spinner fa-spin" style="font-size: 48px; color: #FEBA17;"></i><p style="margin-top: 20px; font-size: 18px;">Chargement...</p></div>';
+        document.body.appendChild(loading);
+    }
+    loading.style.display = 'flex';
 }
 
 function hideLoading() {
     const loading = document.getElementById('loadingOverlay');
     if (loading) {
-        loading.remove();
+        loading.style.display = 'none';
     }
 }
 
-// ==================== UTILITY FUNCTIONS ====================
-function sanitizeInput(input) {
-    const div = document.createElement('div');
-    div.textContent = input;
-    return div.innerHTML;
-}
-
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return date.toLocaleDateString('fr-FR', options);
-}
-
-function formatTime(timeString) {
-    return timeString.substring(0, 5);
-}
-
-// ==================== AUTO-HIDE ALERTS ====================
-setTimeout(function() {
-    const alerts = document.querySelectorAll('.alert');
-    alerts.forEach(alert => {
-        alert.style.transition = 'opacity 0.5s ease';
-        alert.style.opacity = '0';
-        setTimeout(() => alert.remove(), 500);
-    });
-}, 5000);
-
-// ==================== PREVENT DOUBLE FORM SUBMISSION ====================
-document.querySelectorAll('form').forEach(form => {
-    form.addEventListener('submit', function(e) {
-        const submitBtn = this.querySelector('button[type="submit"]');
-        if (submitBtn && submitBtn.disabled) {
-            e.preventDefault();
-            return false;
-        }
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            const originalText = submitBtn.innerHTML;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Traitement...';
-            
-            setTimeout(() => {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
-            }, 3000);
-        }
-    });
+// ==================== PREVENT DOUBLE SUBMIT ====================
+document.addEventListener('DOMContentLoaded', function () {
+    const forms = document.querySelectorAll('form');
+    for (let i = 0; i < forms.length; i++) {
+        forms[i].addEventListener('submit', function () {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn && !submitBtn.disabled) {
+                submitBtn.disabled = true;
+                setTimeout(function () {
+                    submitBtn.disabled = false;
+                }, 3000);
+            }
+        });
+    }
 });
-
-// ==================== CONSOLE MESSAGE ====================
-console.log('%cSportCoach Platform', 'color: #FEBA17; font-size: 24px; font-weight: bold;');
-console.log('%cDéveloppé avec passion pour les sportifs et les coachs', 'color: #74512D; font-size: 14px;');

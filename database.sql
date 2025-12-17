@@ -8,10 +8,11 @@ create table sportif (
     sportif_prenom varchar(50),
     sportif_email varchar(100),
     sportif_phone varchar(20),
-    sportif_password varchar(100)
+    sportif_password varchar(100),
+    add sportif_photo varchar(255)
 );
 
-create table coach (
+create table Coach (
     id_coach integer primary key auto_increment,
     coach_nom varchar(50),
     coach_prenom varchar(50),
@@ -21,19 +22,19 @@ create table coach (
     coach_biographie varchar(255)
 );
 
-create table discipline (
+create table Discipline (
     id_discipline integer primary key auto_increment,
     discipline_nom varchar(50)
 );
 
-create table certificat (
+create table Certificat (
     id_certificat integer primary key auto_increment,
     titre_certificat varchar(100),
     organisme varchar(100),
     annee_certificat date
 );
 
-create table disponibilite (
+create table Disponibilite (
     id_disponibilite integer primary key auto_increment,
     id_coach integer,
     date_disponibilite date,
@@ -43,7 +44,7 @@ create table disponibilite (
     foreign key (id_coach) references Coach(id_coach)
 );
 
-create table reservation (
+create table Reservation (
     id_reservation integer primary key auto_increment,
     id_sportif integer,
     id_coach integer,
@@ -55,7 +56,7 @@ create table reservation (
     foreign key (id_coach) references Coach(id_coach)
 );
 
-create table coach_certificat (
+create table Coach_certificat (
     id_coach integer,
     id_certificat integer,
     primary key (id_coach, id_certificat),
@@ -63,7 +64,7 @@ create table coach_certificat (
     foreign key (id_certificat) references Certificat(id_certificat)
 );
 
-create table coach_discipline (
+create table Coach_discipline (
     id_coach integer,
     id_discipline integer,
     primary key (id_coach, id_discipline),
