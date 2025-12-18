@@ -19,15 +19,15 @@
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
-            <a href="index.html" class="logo">
+            <a href="index.php" class="logo">
                 <i class="fas fa-dumbbell"></i>
                 <span>SportCoach</span>
             </a>
             <ul class="nav-menu" id="navMenu">
-                <li><a href="index.html" class="nav-link"><i class="fas fa-home"></i> Accueil</a></li>
-                <li><a href="coaches.html" class="nav-link"><i class="fas fa-users"></i> Nos Coachs</a></li>
-                <li><a href="login.html" class="btn-secondary"><i class="fas fa-sign-in-alt"></i> Connexion</a></li>
-                <li><a href="register.html" class="btn-primary"><i class="fas fa-user-plus"></i> Inscription</a></li>
+                <li><a href="index.php" class="nav-link"><i class="fas fa-home"></i> Accueil</a></li>
+                <li><a href="coaches.php" class="nav-link"><i class="fas fa-users"></i> Nos Coachs</a></li>
+                <li><a href="login.php" class="btn-secondary"><i class="fas fa-sign-in-alt"></i> Connexion</a></li>
+                <li><a href="register.php" class="btn-primary"><i class="fas fa-user-plus"></i> Inscription</a></li>
             </ul>
             <button class="mobile-menu-toggle" id="mobileMenuToggle">
                 <i class="fas fa-bars"></i>
@@ -42,10 +42,10 @@
                 <h1>Trouvez votre <span class="highlight">coach sportif</span> idéal</h1>
                 <p>Réservez des séances personnalisées avec des coachs professionnels dans toutes les disciplines sportives. Atteignez vos objectifs avec un accompagnement sur mesure.</p>
                 <div class="hero-buttons">
-                    <a href="coaches.html" class="btn-primary">
+                    <a href="coaches.php" class="btn-primary">
                         <i class="fas fa-search"></i> Découvrir les coachs
                     </a>
-                    <a href="register.html" class="btn-secondary">
+                    <a href="register.php" class="btn-secondary">
                         <i class="fas fa-user-plus"></i> Créer un compte
                     </a>
                 </div>
@@ -117,7 +117,7 @@
             <p style="font-size: 18px; color: var(--text-gray); margin-bottom: 30px;">
                 Rejoignez des milliers de sportifs qui ont déjà atteint leurs objectifs avec nos coachs professionnels.
             </p>
-            <a href="register.html" class="btn-primary" style="display: inline-block; font-size: 18px; padding: 15px 40px;">
+            <a href="register.php" class="btn-primary" style="display: inline-block; font-size: 18px; padding: 15px 40px;">
                 <i class="fas fa-rocket"></i> Commencer maintenant
             </a>
         </div>
@@ -139,10 +139,10 @@
             <div class="footer-section">
                 <h3>Navigation</h3>
                 <ul class="footer-links">
-                    <li><a href="index.html">Accueil</a></li>
-                    <li><a href="coaches.html">Nos Coachs</a></li>
-                    <li><a href="login.html">Connexion</a></li>
-                    <li><a href="register.html">Inscription</a></li>
+                    <li><a href="index.php">Accueil</a></li>
+                    <li><a href="coaches.php">Nos Coachs</a></li>
+                    <li><a href="login.php">Connexion</a></li>
+                    <li><a href="register.php">Inscription</a></li>
                 </ul>
             </div>
             <div class="footer-section">

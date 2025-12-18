@@ -26,10 +26,10 @@
                 <span>SportCoach</span>
             </a>
             <ul class="nav-menu" id="navMenu">
-                <li><a href="index.html" class="nav-link"><i class="fas fa-home"></i> Accueil</a></li>
-                <li><a href="coaches.html" class="nav-link"><i class="fas fa-users"></i> Nos Coachs</a></li>
-                <li><a href="login.html" class="btn-secondary"><i class="fas fa-sign-in-alt"></i> Connexion</a></li>
-                <li><a href="register.html" class="btn-primary"><i class="fas fa-user-plus"></i> Inscription</a></li>
+                <li><a href="index.php" class="nav-link"><i class="fas fa-home"></i> Accueil</a></li>
+                <li><a href="coaches.php" class="nav-link"><i class="fas fa-users"></i> Nos Coachs</a></li>
+                <li><a href="login.php" class="btn-secondary"><i class="fas fa-sign-in-alt"></i> Connexion</a></li>
+                <li><a href="register.php" class="btn-primary"><i class="fas fa-user-plus"></i> Inscription</a></li>
             </ul>
             <button class="mobile-menu-toggle" id="mobileMenuToggle">
                 <i class="fas fa-bars"></i>
@@ -157,7 +157,7 @@
         </form>
 
         <div class="form-footer">
-            <p>Vous avez déjà un compte ? <a href="login.html">Connectez-vous</a></p>
+            <p>Vous avez déjà un compte ? <a href="login.php">Connectez-vous</a></p>
         </div>
     </div>
 
@@ -177,10 +177,10 @@
             <div class="footer-section">
                 <h3>Navigation</h3>
                 <ul class="footer-links">
-                    <li><a href="index.html">Accueil</a></li>
-                    <li><a href="coaches.html">Nos Coachs</a></li>
-                    <li><a href="login.html">Connexion</a></li>
-                    <li><a href="register.html">Inscription</a></li>
+                    <li><a href="index.php">Accueil</a></li>
+                    <li><a href="coaches.php">Nos Coachs</a></li>
+                    <li><a href="login.php">Connexion</a></li>
+                    <li><a href="register.php">Inscription</a></li>
                 </ul>
             </div>
             <div class="footer-section">
