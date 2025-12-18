@@ -2,14 +2,14 @@ create database coachpro;
 
 use coachpro;
 
-create table sportif (
+create table Sportif (
     id_sportif integer primary key auto_increment,
     sportif_nom varchar(50),
     sportif_prenom varchar(50),
     sportif_email varchar(100),
     sportif_phone varchar(20),
     sportif_password varchar(100),
-    add sportif_photo varchar(255)
+    sportif_photo varchar(255)
 );
 
 create table Coach (
@@ -19,7 +19,8 @@ create table Coach (
     coach_email varchar(100),
     coach_phone varchar(20),
     coach_photo varchar(255),
-    coach_biographie varchar(255)
+    coach_biographie varchar(255),
+    coach_annees_experiences integer
 );
 
 create table Discipline (

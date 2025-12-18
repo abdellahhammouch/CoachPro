@@ -1,0 +1,157 @@
+/* Tag Input Container - Selected Disciplines Display */
+.tag-input {
+  border: 2px solid #F5E6D3;
+  padding: 12px;
+  min-height: 60px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #FFF9F0 0%, #FFFFFF 100%);
+  box-shadow: 0 2px 8px rgba(116, 81, 45, 0.08);
+  transition: all 0.3s ease;
+}
+
+.tag-input:hover {
+  border-color: #FEBA17;
+  box-shadow: 0 4px 12px rgba(254, 186, 23, 0.15);
+}
+
+.tag-input:empty::before {
+  content: "Sélectionnez vos disciplines ci-dessous...";
+  color: #A0826D;
+  font-style: italic;
+  font-size: 14px;
+}
+
+/* Individual Tag Styling */
+.tag {
+  background: linear-gradient(135deg, #FEBA17 0%, #F5A623 100%);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 25px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 3px 10px rgba(254, 186, 23, 0.3);
+  transition: all 0.3s ease;
+  animation: tagAppear 0.4s ease;
+}
+
+@keyframes tagAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.8) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.tag:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(254, 186, 23, 0.4);
+}
+
+/* Remove Button in Tag */
+.tag button {
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  padding: 0;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.tag button:hover {
+  background: white;
+  color: #FEBA17;
+  transform: rotate(90deg);
+}
+
+/* Choices Container - Available Disciplines */
+.choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 15px;
+  padding: 15px;
+  background: #F9F6F1;
+  border-radius: 12px;
+  border: 1px solid #c39741;
+}
+
+/* Individual Choice Button */
+.choice {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  border: 2px solid #FEBA17;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #74512D;
+  background: white;
+  transition: all 0.3s ease;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(116, 81, 45, 0.08);
+}
+
+.choice:hover {
+  background: linear-gradient(135deg, #FEBA17 0%, #F5A623 100%);
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(254, 186, 23, 0.3);
+  border-color: #F5A623;
+}
+
+.choice:active {
+  transform: translateY(-1px);
+}
+
+.choice.selected {
+  background: #74512D;
+  color: white;
+  border-color: #74512D;
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Label for the discipline section */
+.form-group label {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+  color: #74512D;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* Add a small hint text */
+.discipline-hint {
+  font-size: 13px;
+  color: #A0826D;
+  margin-top: 8px;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.discipline-hint i {
+  color: #FEBA17;
+}

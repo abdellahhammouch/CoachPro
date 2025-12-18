@@ -14,7 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['login'])) {
 
 
     if ($sqlSportif) {
-        $sportif = $sql->fetch_assoc();
+        $sportif = $sqlSportif->fetch_assoc();
         if ($sportif["password"] === $password) {
             $_SESSION['user_id'] = $sportif['id_user'];
             $_SESSION['username'] = $sportif['username'];
@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['login'])) {
             $error = "Nom d'utilisateur ou mot de passe incorrect";
         }
     } elseif($sqlCoach) {
-        $user = $sql->fetch_assoc();
+        $user = $sqlCoach->fetch_assoc();
         if ($user["password"] === $password) {
             $_SESSION['user_id'] = $user['id_user'];
             $_SESSION['username'] = $user['username'];

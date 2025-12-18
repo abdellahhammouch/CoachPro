@@ -3,7 +3,6 @@
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
     require "connect.php";
-
 ?>
 
 <!DOCTYPE html>
@@ -15,6 +14,7 @@
     <title>Inscription - SportCoach</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="register.css">
 </head>
 
 <body>
@@ -43,12 +43,12 @@
             <h2>Créer un compte</h2>
             <p>Rejoignez notre communauté sportive</p>
         </div>
-        <form id="registerForm" action="register_handling" method="post" novalidate>
+        <form id="registerForm" action="register_handling.php" method="post" >
             <div class="form-group">
                 <label for="userType">Je m'inscris en tant que</label>
                 <div class="input-group">
                     <i class="fas fa-user-tag"></i>
-                    <select name="useraType" id="userType" class="form-control" required>
+                    <select name="userType" id="userType" class="form-control" required>
                         <option value="">Sélectionnez votre rôle</option>
                         <option value="sportif">Sportif</option>
                         <option value="coach">Coach professionnel</option>
@@ -62,7 +62,7 @@
                     <label for="firstName">Prénom</label>
                     <div class="input-group">
                         <i class="fas fa-user"></i>
-                        <input type="text" name="prénom" id="firstName" class="form-control" placeholder="Votre prénom" required>
+                        <input type="text" name="prenom" id="firstName" class="form-control" placeholder="Votre prénom" required>
                     </div>
                     <span class="error-message" id="firstNameError">Le prénom est requis (min. 2 caractères)</span>
                 </div>
@@ -116,27 +116,42 @@
             <!-- Coach specific fields -->
             <div id="coachFields" style="display: none;">
                 <div class="form-group">
-                    <label for="specialties">Spécialités (séparées par des virgules)</label>
-                    <div class="input-group">
-                        <i class="fas fa-medal"></i>
-                        <input type="text" id="specialties" class="form-control" placeholder="Football, Tennis, Natation...">
-                        <select name="useraType" id="userType" class="form-control" required>
-                            <option value="">Sélectionnez votre rôle</option>
-                            <option value="Football">Football</option>
-                            <option value="Tennis">Tennis</option>
-                            <option value="Natation">Natation</option>
-                            <option value="Preparation physique">Preparation physique</option>
-                            <option value="Boxe">Boxe</option>
-                        </select>
+                    <label><i class="fas fa-star"></i> Vos Spécialités</label>
+                    
+                    <!-- Selected Disciplines Display (Top) -->
+                    <div class="tag-input" id="tags">
+                        <!-- Selected tags will appear here -->
+                    </div>
+                    <input type="hidden" name="disciplines" id="hiddenInput">
+                    
+                    <p class="discipline-hint">
+                        <i class="fas fa-info-circle"></i>
+                        Cliquez sur les disciplines pour les sélectionner
+                    </p>
+                    
+                    <!-- Available Choices (Grid Layout) -->
+                    <div class="choices">
+                        <span class="choice" data-value="Football"><i class="fas fa-futbol"></i> Football</span>
+                        <span class="choice" data-value="Tennis"><i class="fas fa-table-tennis"></i> Tennis</span>
+                        <span class="choice" data-value="Natation"><i class="fas fa-swimmer"></i> Natation</span>
+                        <span class="choice" data-value="Boxe"><i class="fas fa-fist-raised"></i> Boxe</span>
+                        <span class="choice" data-value="Preparation physique"><i class="fas fa-dumbbell"></i> Préparation physique</span>
+                        <span class="choice" data-value="Basketball"><i class="fas fa-basketball-ball"></i> Basketball</span>
+                        <span class="choice" data-value="Yoga"><i class="fas fa-spa"></i> Yoga</span>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="experience">Années d'expérience</label>
+                    <label for="experience"><i class="fas fa-calendar-alt"></i> Années d'expérience</label>
                     <div class="input-group">
-                        <i class="fas fa-calendar-alt"></i>
-                        <input type="number" id="experience" class="form-control" placeholder="Ex: 5" min="0">
+                        <i class="fas fa-medal"></i>
+                        <input type="number" name="experience" id="experience" class="form-control" placeholder="Ex: 5" min="0">
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="biographie"><i class="fas fa-pen"></i> Biographie</label>
+                    <textarea name="biographie" id="biographie" class="form-control" rows="4" placeholder="Parlez de votre expérience, votre approche et votre expertise..." style="padding: 12px; resize: vertical; border-radius: 8px; border: 2px solid #F5E6D3;"></textarea>
                 </div>
             </div>
 
@@ -151,7 +166,7 @@
                 <span class="error-message" id="termsError">Vous devez accepter les conditions</span>
             </div>
 
-            <button type="submit" class="btn-submit">
+            <button type="submit" name="signup" class="btn-submit">
                 <i class="fas fa-user-plus"></i> Créer mon compte
             </button>
         </form>
@@ -207,6 +222,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="register.js"></script>
     <script src="auth.js"></script>
     <script src="main.js"></script>
 </body>

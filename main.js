@@ -208,3 +208,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+const select = document.getElementById("discipline");
+
+  select.addEventListener("change", () => {
+    const values = [...select.selectedOptions].map(o => o.value);
+  });
