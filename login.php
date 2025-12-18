@@ -3,9 +3,7 @@
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
     require "connect.php";
-    
 ?>
-
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -42,12 +40,13 @@
             <h2>Connexion</h2>
             <p>Accédez à votre espace personnel</p>
         </div>
-        <form id="loginForm" action="login_handling" method="post" novalidate>
+        
+        <form id="loginForm" action="login_handling.php" method="POST">
             <div class="form-group">
                 <label for="email">Email</label>
                 <div class="input-group">
                     <i class="fas fa-envelope"></i>
-                    <input type="email" id="email" class="form-control" placeholder="votre@email.com" required>
+                    <input type="email" name="email" id="email" class="form-control" placeholder="votre@email.com" required>
                 </div>
                 <span class="error-message" id="emailError">Veuillez entrer un email valide</span>
             </div>
@@ -56,7 +55,7 @@
                 <label for="password">Mot de passe</label>
                 <div class="input-group">
                     <i class="fas fa-lock"></i>
-                    <input type="password" id="password" class="form-control" placeholder="Votre mot de passe" required>
+                    <input type="password" name="password" id="password" class="form-control" placeholder="Votre mot de passe" required>
                 </div>
                 <span class="error-message" id="passwordError">Le mot de passe est requis</span>
             </div>
@@ -65,9 +64,9 @@
                 <label for="userType">Type de compte</label>
                 <div class="input-group">
                     <i class="fas fa-user-tag"></i>
-                    <select id="userType" class="form-control" required>
+                    <select name="userType" id="userType" class="form-control" required>
                         <option value="">Sélectionnez votre rôle</option>
-                        <option value="athlete">Sportif</option>
+                        <option value="sportif">Sportif</option>
                         <option value="coach">Coach</option>
                     </select>
                 </div>
@@ -82,13 +81,13 @@
                 <a href="#" style="font-size: 14px; color: var(--primary-gold); font-weight: 600;">Mot de passe oublié ?</a>
             </div>
 
-            <button type="submit" class="btn-submit">
+            <button type="submit" name="login" class="btn-submit">
                 <i class="fas fa-sign-in-alt"></i> Se connecter
             </button>
         </form>
 
         <div class="form-footer">
-            <p>Vous n'avez pas de compte ? <a href="register.html">Inscrivez-vous</a></p>
+            <p>Vous n'avez pas de compte ? <a href="register.php">Inscrivez-vous</a></p>
         </div>
     </div>
 

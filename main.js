@@ -202,15 +202,18 @@ document.addEventListener('DOMContentLoaded', function () {
             if (submitBtn && !submitBtn.disabled) {
                 submitBtn.disabled = true;
                 setTimeout(function () {
-                    submitBtn.disabled = false;
+                    submitBtn.disablednull = false;
                 }, 3000);
             }
         });
     }
 });
 
-const select = document.getElementById("discipline");
+const select = document.getElementById("hiddenInput");
 
-  select.addEventListener("change", () => {
+
+
+
+  select.addEventListener("input", () => {
     const values = [...select.selectedOptions].map(o => o.value);
   });

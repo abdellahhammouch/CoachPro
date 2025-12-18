@@ -2,7 +2,11 @@
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
+
+    session_start();
     require "connect.php";
+        $error = $_SESSION['error'] ?? "";
+        $success = $_SESSION['success'] ?? "";
 ?>
 
 <!DOCTYPE html>
@@ -43,6 +47,19 @@
             <h2>Créer un compte</h2>
             <p>Rejoignez notre communauté sportive</p>
         </div>
+
+        <?php if ($error): ?>
+            <div class="error-message">
+                <i class="fas fa-exclamation-triangle"></i> <?= $error ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if ($success): ?>
+            <div class="success-message">
+                <i class="fas fa-check-circle"></i> <?= $success ?>
+            </div>
+        <?php endif; ?>
+
         <form id="registerForm" action="register_handling.php" method="post" >
             <div class="form-group">
                 <label for="userType">Je m'inscris en tant que</label>
@@ -128,8 +145,6 @@
                         <i class="fas fa-info-circle"></i>
                         Cliquez sur les disciplines pour les sélectionner
                     </p>
-                    
-                    <!-- Available Choices (Grid Layout) -->
                     <div class="choices">
                         <span class="choice" data-value="Football"><i class="fas fa-futbol"></i> Football</span>
                         <span class="choice" data-value="Tennis"><i class="fas fa-table-tennis"></i> Tennis</span>

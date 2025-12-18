@@ -1,85 +1,71 @@
-// ==================== LOGIN FORM HANDLING ====================
+// ==================== SIMPLE VALIDATION - EASY TO UNDERSTAND ====================
+
+// Wait for page to load
 document.addEventListener('DOMContentLoaded', function() {
-    const loginForm = document.getElementById('loginForm');
+    
+    // Hide all error messages when page loads
+    let allErrors = document.querySelectorAll('.error-message');
+    for (let i = 0; i < allErrors.length; i++) {
+        allErrors[i].style.display = 'none';
+    }
+    
+    // ==================== LOGIN FORM ====================
+    let loginForm = document.getElementById('loginForm');
     
     if (loginForm) {
         loginForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+            e.preventDefault(); // Stop form from submitting immediately
             
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const userType = document.getElementById('userType').value;
+            // Get the input values
+            let email = document.getElementById('email').value;
+            let password = document.getElementById('password').value;
+            let userType = document.getElementById('userType').value;
             
-            let isValid = true;
+            let formIsValid = true; // We assume form is valid
             
-            // Validate email
-            if (!ValidationPatterns.email.test(email)) {
-                showError('email', 'emailError', true);
-                isValid = false;
+            // Check email
+            if (email === '' || !email.includes('@')) {
+                document.getElementById('emailError').style.display = 'block';
+                document.getElementById('email').style.borderColor = 'red';
+                formIsValid = false;
             } else {
-                showError('email', 'emailError', false);
+                document.getElementById('emailError').style.display = 'none';
+                document.getElementById('email').style.borderColor = '#e5e5e5';
             }
             
-            // Validate password
-            if (password.length === 0) {
-                showError('password', 'passwordError', true);
-                isValid = false;
+            // Check password
+            if (password === '') {
+                document.getElementById('passwordError').style.display = 'block';
+                document.getElementById('password').style.borderColor = 'red';
+                formIsValid = false;
             } else {
-                showError('password', 'passwordError', false);
+                document.getElementById('passwordError').style.display = 'none';
+                document.getElementById('password').style.borderColor = '#e5e5e5';
             }
             
-            // Validate user type
-            if (!userType) {
-                showError('userType', 'userTypeError', true);
-                isValid = false;
+            // Check user type
+            if (userType === '') {
+                document.getElementById('userTypeError').style.display = 'block';
+                document.getElementById('userType').style.borderColor = 'red';
+                formIsValid = false;
             } else {
-                showError('userType', 'userTypeError', false);
+                document.getElementById('userTypeError').style.display = 'none';
+                document.getElementById('userType').style.borderColor = '#e5e5e5';
             }
             
-            if (isValid) {
-                handleLogin(email, password, userType);
+            // If everything is valid, submit the form
+            if (formIsValid) {
+                loginForm.submit();
             }
-        });
-        
-        // Real-time validation
-        document.getElementById('email').addEventListener('blur', function() {
-            validateField('email', ValidationPatterns.email, 'emailError');
         });
     }
-});
-
-function handleLogin(email, password, userType) {
-    showLoading();
     
-    // Simulate API call
-    setTimeout(() => {
-        hideLoading();
-        
-        // In real implementation, this would be an API call
-        // For demo purposes, we'll simulate a successful login
-        
-        showSuccessAlert(
-            'Connexion réussie !',
-            'Redirection vers votre espace...'
-        );
-        
-        setTimeout(() => {
-            if (userType === 'coach') {
-                window.location.href = 'dashboard-coach.html';
-            } else {
-                window.location.href = 'athlete-space.html';
-            }
-        }, 1500);
-    }, 1500);
-}
-
-// ==================== REGISTER FORM HANDLING ====================
-document.addEventListener('DOMContentLoaded', function() {
-    const registerForm = document.getElementById('registerForm');
-    const userTypeSelect = document.getElementById('userType');
-    const coachFields = document.getElementById('coachFields');
+    // ==================== REGISTER FORM ====================
+    let registerForm = document.getElementById('registerForm');
+    let userTypeSelect = document.getElementById('userType');
+    let coachFields = document.getElementById('coachFields');
     
-    // Show/hide coach specific fields
+    // Show coach fields when coach is selected
     if (userTypeSelect && coachFields) {
         userTypeSelect.addEventListener('change', function() {
             if (this.value === 'coach') {
@@ -92,153 +78,104 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (registerForm) {
         registerForm.addEventListener('submit', function(e) {
-            e.preventDefault();
+            e.preventDefault(); // Stop form from submitting immediately
             
-            const formData = {
-                userType: document.getElementById('userType').value,
-                firstName: document.getElementById('firstName').value.trim(),
-                lastName: document.getElementById('lastName').value.trim(),
-                email: document.getElementById('email').value.trim(),
-                phone: document.getElementById('phone').value.trim(),
-                password: document.getElementById('password').value,
-                confirmPassword: document.getElementById('confirmPassword').value,
-                terms: document.getElementById('terms').checked
-            };
+            // Get all input values
+            let userType = document.getElementById('userType').value;
+            let firstName = document.getElementById('firstName').value;
+            let lastName = document.getElementById('lastName').value;
+            let email = document.getElementById('email').value;
+            let phone = document.getElementById('phone').value;
+            let password = document.getElementById('password').value;
+            let confirmPassword = document.getElementById('confirmPassword').value;
+            let terms = document.getElementById('terms').checked;
             
-            // Coach specific fields
-            if (formData.userType === 'coach') {
-                formData.specialties = document.getElementById('specialties').value.trim();
-                formData.experience = document.getElementById('experience').value;
-            }
+            let formIsValid = true;
             
-            let isValid = true;
-            
-            // Validate user type
-            if (!formData.userType) {
-                showError('userType', 'userTypeError', true);
-                isValid = false;
+            // Check user type
+            if (userType === '') {
+                document.getElementById('userTypeError').style.display = 'block';
+                formIsValid = false;
             } else {
-                showError('userType', 'userTypeError', false);
+                document.getElementById('userTypeError').style.display = 'none';
             }
             
-            // Validate first name
-            if (!ValidationPatterns.name.test(formData.firstName)) {
-                showError('firstName', 'firstNameError', true);
-                isValid = false;
+            // Check first name
+            if (firstName === '' || firstName.length < 2) {
+                document.getElementById('firstNameError').style.display = 'block';
+                formIsValid = false;
             } else {
-                showError('firstName', 'firstNameError', false);
+                document.getElementById('firstNameError').style.display = 'none';
             }
             
-            // Validate last name
-            if (!ValidationPatterns.name.test(formData.lastName)) {
-                showError('lastName', 'lastNameError', true);
-                isValid = false;
+            // Check last name
+            if (lastName === '' || lastName.length < 2) {
+                document.getElementById('lastNameError').style.display = 'block';
+                formIsValid = false;
             } else {
-                showError('lastName', 'lastNameError', false);
+                document.getElementById('lastNameError').style.display = 'none';
             }
             
-            // Validate email
-            if (!ValidationPatterns.email.test(formData.email)) {
-                showError('email', 'emailError', true);
-                isValid = false;
+            // Check email
+            if (email === '' || !email.includes('@')) {
+                document.getElementById('emailError').style.display = 'block';
+                formIsValid = false;
             } else {
-                showError('email', 'emailError', false);
+                document.getElementById('emailError').style.display = 'none';
             }
             
-            // Validate phone
-            if (!ValidationPatterns.phone.test(formData.phone)) {
-                showError('phone', 'phoneError', true);
-                isValid = false;
+            // Check phone
+            if (phone === '' || phone.length < 10) {
+                document.getElementById('phoneError').style.display = 'block';
+                formIsValid = false;
             } else {
-                showError('phone', 'phoneError', false);
+                document.getElementById('phoneError').style.display = 'none';
             }
             
-            // Validate password
-            if (!ValidationPatterns.password.test(formData.password)) {
-                showError('password', 'passwordError', true);
-                isValid = false;
+            // Check password
+            if (password === '' || password.length < 6) {
+                document.getElementById('passwordError').style.display = 'block';
+                formIsValid = false;
             } else {
-                showError('password', 'passwordError', false);
+                document.getElementById('passwordError').style.display = 'none';
             }
             
-            // Validate password confirmation
-            if (formData.password !== formData.confirmPassword) {
-                showError('confirmPassword', 'confirmPasswordError', true);
-                isValid = false;
+            // Check confirm password
+            if (password !== confirmPassword) {
+                document.getElementById('confirmPasswordError').style.display = 'block';
+                formIsValid = false;
             } else {
-                showError('confirmPassword', 'confirmPasswordError', false);
+                document.getElementById('confirmPasswordError').style.display = 'none';
             }
             
-            // Validate terms
-            if (!formData.terms) {
-                showError('terms', 'termsError', true);
-                isValid = false;
+            // Check terms
+            if (!terms) {
+                document.getElementById('termsError').style.display = 'block';
+                formIsValid = false;
             } else {
-                showError('terms', 'termsError', false);
+                document.getElementById('termsError').style.display = 'none';
             }
             
-            if (isValid) {
-                handleRegister(formData);
-            }
-        });
-        
-        // Real-time validation
-        const fields = [
-            { id: 'firstName', pattern: ValidationPatterns.name, error: 'firstNameError' },
-            { id: 'lastName', pattern: ValidationPatterns.name, error: 'lastNameError' },
-            { id: 'email', pattern: ValidationPatterns.email, error: 'emailError' },
-            { id: 'phone', pattern: ValidationPatterns.phone, error: 'phoneError' },
-            { id: 'password', pattern: ValidationPatterns.password, error: 'passwordError' }
-        ];
-        
-        fields.forEach(field => {
-            const element = document.getElementById(field.id);
-            if (element) {
-                element.addEventListener('blur', function() {
-                    validateField(field.id, field.pattern, field.error);
-                });
-            }
-        });
-        
-        // Confirm password validation
-        const confirmPassword = document.getElementById('confirmPassword');
-        if (confirmPassword) {
-            confirmPassword.addEventListener('blur', function() {
-                const password = document.getElementById('password').value;
-                if (this.value !== password) {
-                    showError('confirmPassword', 'confirmPasswordError', true);
-                } else {
-                    showError('confirmPassword', 'confirmPasswordError', false);
+            // For coach, check disciplines
+            if (userType === 'coach') {
+                let disciplines = document.getElementById('hiddenInput').value;
+                if (disciplines === '') {
+                    alert('Veuillez sélectionner au moins une discipline');
+                    formIsValid = false;
                 }
-            });
-        }
+            }
+            
+            // If everything is valid, submit the form
+            if (formIsValid) {
+                registerForm.submit(); // Now actually submit the form
+            }
+        });
     }
 });
 
-function handleRegister(formData) {
-    showLoading();
-    
-    // Simulate API call
-    setTimeout(() => {
-        hideLoading();
-        
-        // In real implementation, this would be an API call
-        // For demo purposes, we'll simulate a successful registration
-        
-        showSuccessAlert(
-            'Inscription réussie !',
-            'Votre compte a été créé avec succès. Vous allez être redirigé vers la page de connexion.'
-        );
-        
-        setTimeout(() => {
-            window.location.href = 'login.html';
-        }, 2000);
-    }, 1500);
-}
-
 // ==================== PASSWORD VISIBILITY TOGGLE ====================
 function togglePasswordVisibility(inputId) {
-    const input = document.getElementById(inputId);
+    let input = document.getElementById(inputId);
     if (input) {
         if (input.type === 'password') {
             input.type = 'text';
@@ -246,19 +183,4 @@ function togglePasswordVisibility(inputId) {
             input.type = 'password';
         }
     }
-}
-
-// ==================== LOGOUT FUNCTION ====================
-function logout() {
-    showConfirmAlert(
-        'Déconnexion',
-        'Êtes-vous sûr de vouloir vous déconnecter ?',
-        function() {
-            showLoading();
-            setTimeout(() => {
-                hideLoading();
-                window.location.href = 'index.html';
-            }, 1000);
-        }
-    );
 }
