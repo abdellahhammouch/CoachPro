@@ -1,8 +1,12 @@
 <?php 
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
     require "connect.php";
+    require "auth_check.php";
     
     // Récupérer les coachs depuis la base de données
-    $sql = "SELECT * FROM Coach";
+    $sql = "select * from Coach";
     $result = $connect->query($sql);
 ?>
 <!DOCTYPE html>

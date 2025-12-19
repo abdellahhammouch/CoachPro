@@ -22,6 +22,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $_SESSION['user_id'] = $user['id_sportif'];
                 $_SESSION['user_type'] = 'sportif';
                 $_SESSION['user_name'] = $user['sportif_prenom'] . ' ' . $user['sportif_nom'];
+                $_SESSION['user_email'] = $user['email'];
                 
                 header("Location: dashboard-athlete.php");
                 exit();
@@ -47,6 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 $_SESSION['user_id'] = $user['id_coach'];
                 $_SESSION['user_type'] = 'coach';
                 $_SESSION['user_name'] = $user['coach_prenom'] . ' ' . $user['coach_nom'];
+                $_SESSION['user_email'] = $user['coach_email'];
                 
                 header("Location: dashboard_coach.php");
                 exit();

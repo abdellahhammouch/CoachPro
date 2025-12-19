@@ -2,6 +2,7 @@
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
+    require "auth_check.php";
     require "connect.php";
 
 ?>
@@ -27,7 +28,7 @@
                 <li><a href="coaches.html" class="nav-link"><i class="fas fa-users"></i> Trouver un coach</a></li>
                 <li style="display: flex; align-items: center; gap: 10px;">
                     <img src="https://ui-avatars.com/api/?name=Sportif&background=74512D&color=fff" alt="Avatar" style="width: 35px; height: 35px; border-radius: 50%;">
-                    <span style="color: var(--primary-dark); font-weight: 600;">Yassine M.</span>
+                    <span style="color: var(--primary-dark); font-weight: 600;"><?= $current_user['user_name'] ?></span>
                 </li>
                 <li><a href="index.html" class="btn-secondary"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
             </ul>
@@ -94,7 +95,14 @@
                             <i class="fas fa-clock"></i>
                         </div>
                         <div class="stat-details">
-                            <h3>2</h3>
+                            <?php 
+                                $resrvation_enattente=$connect->prepare("select count(id_reservation) as total from Reservation where statut = 'enattente'");
+                                $resrvation_enattente->execute();
+                                $result = $resrvation_enattente->get_result();
+                                $row = $result->fetch_assoc();
+                                $resrvation_enattente = $row['total'];
+                            ?>
+                            <h3><?=$resrvation_enattente?></h3>
                             <p>Réservations en attente</p>
                         </div>
                     </div>
@@ -103,7 +111,14 @@
                             <i class="fas fa-calendar-check"></i>
                         </div>
                         <div class="stat-details">
-                            <h3>1</h3>
+                            <?php 
+                                $resrvation_approuved=$connect->prepare("select count(id_reservation) as total from Reservation where statut = 'acceptee'");
+                                $resrvation_approuved->execute();
+                                $result = $resrvation_approuved->get_result();
+                                $row = $result->fetch_assoc();
+                                $resrvation_approuved = $row['total'];
+                            ?>
+                            <h3><?=$resrvation_approuved?></h3>
                             <p>Prochaine séance</p>
                         </div>
                     </div>
@@ -112,7 +127,14 @@
                             <i class="fas fa-check-circle"></i>
                         </div>
                         <div class="stat-details">
-                            <h3>12</h3>
+                            <?php 
+                                $resrvation_done=$connect->prepare("select count(id_reservation) as total from Reservation where statut = 'terminee'");
+                                $resrvation_done->execute();
+                                $result = $resrvation_done->get_result();
+                                $row = $result->fetch_assoc();
+                                $resrvation_done = $row['total'];
+                            ?>
+                            <h3><?=$resrvation_done?></h3>
                             <p>Séances complétées</p>
                         </div>
                     </div>
@@ -121,8 +143,15 @@
                             <i class="fas fa-user-friends"></i>
                         </div>
                         <div class="stat-details">
-                            <h3>3</h3>
-                            <p>Coachs actifs</p>
+                            <?php 
+                                $coaches_totaux=$connect->prepare("select count(id_coach) as total from Coach");
+                                $coaches_totaux->execute();
+                                $result = $coaches_totaux->get_result();
+                                $row = $result->fetch_assoc();
+                                $coaches_totaux = $row['total'];
+                            ?>
+                            <h3><?=$coaches_totaux?></h3>
+                            <p>Coachs totaux</p>
                         </div>
                     </div>
                 </div>
@@ -331,6 +360,7 @@
                 <div class="table-container">
                     <form id="athleteProfileForm" style="max-width: 700px; margin: 0 auto;">
                         <div style="text-align: center; margin-bottom: 30px;">
+                            
                             <img src="https://ui-avatars.com/api/?name=Yassine+M&background=74512D&color=fff&size=120" alt="Photo" style="width: 120px; height: 120px; border-radius: 50%; margin-bottom: 15px;">
                             <button type="button" class="btn-secondary">
                                 <i class="fas fa-camera"></i> Changer la photo
