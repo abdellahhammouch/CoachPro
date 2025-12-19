@@ -17,20 +17,32 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <?php 
+        $profil_Sportif=$connect->prepare("select * from Sportif where id_sportif = ?");
+        $profil_Sportif->bind_param("i",$current_user['user_id']);
+        $profil_Sportif->execute();
+        $result = $profil_Sportif->get_result();
+        $row = $result->fetch_assoc();
+        $sportif_photo = $row['sportif_photo'];
+        $sportif_nom = $row['sportif_nom'];
+        $sportif_prenom = $row['sportif_prenom'];
+        $sportif_email = $row['sportif_email'];
+        $sportif_phone = $row['sportif_phone'];
+    ?>
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
-            <a href="index.html" class="logo">
+            <a href="dashboard-athlete.php" class="logo">
                 <i class="fas fa-dumbbell"></i>
                 <span>SportCoach</span>
             </a>
             <ul class="nav-menu">
-                <li><a href="coaches.html" class="nav-link"><i class="fas fa-users"></i> Trouver un coach</a></li>
+                <li><a href="coaches.php" class="nav-link"><i class="fas fa-users"></i> Trouver un coach</a></li>
                 <li style="display: flex; align-items: center; gap: 10px;">
-                    <img src="https://ui-avatars.com/api/?name=Sportif&background=74512D&color=fff" alt="Avatar" style="width: 35px; height: 35px; border-radius: 50%;">
-                    <span style="color: var(--primary-dark); font-weight: 600;"><?= $current_user['user_name'] ?></span>
+                    <img src="<?=$sportif_photo?>" alt="<?= $sportif_nom .' '.$sportif_prenom ?>" style="width: 35px; height: 35px; border-radius: 50%;">
+                    <span style="color: var(--primary-dark); font-weight: 600;"><?= $sportif_nom .' '.$sportif_prenom ?></span>
                 </li>
-                <li><a href="index.html" class="btn-secondary"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
+                <li><a href="index.php" class="btn-secondary"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
             </ul>
         </div>
     </nav>
@@ -53,7 +65,7 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="coaches.html" class="sidebar-link">
+                    <a href="coaches.php" class="sidebar-link">
                         <i class="fas fa-search"></i>
                         <span>Trouver un Coach</span>
                     </a>
@@ -68,12 +80,6 @@
                     <a href="#" class="sidebar-link" onclick="showSection('profile')">
                         <i class="fas fa-user-edit"></i>
                         <span>Mon Profil</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link" onclick="showSection('settings')">
-                        <i class="fas fa-cog"></i>
-                        <span>Paramètres</span>
                     </a>
                 </li>
             </ul>
@@ -360,8 +366,7 @@
                 <div class="table-container">
                     <form id="athleteProfileForm" style="max-width: 700px; margin: 0 auto;">
                         <div style="text-align: center; margin-bottom: 30px;">
-                            
-                            <img src="https://ui-avatars.com/api/?name=Yassine+M&background=74512D&color=fff&size=120" alt="Photo" style="width: 120px; height: 120px; border-radius: 50%; margin-bottom: 15px;">
+                            <img src="<?=$sportif_photo?>" alt="<?= $sportif_nom .' '.$sportif_prenom ?>" style="width: 120px; height: 120px; border-radius: 50%; margin-bottom: 15px;">
                             <button type="button" class="btn-secondary">
                                 <i class="fas fa-camera"></i> Changer la photo
                             </button>
@@ -370,32 +375,22 @@
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                             <div class="form-group">
                                 <label>Prénom</label>
-                                <input type="text" class="form-control" value="Yassine" style="padding-left: 15px;">
+                                <input type="text" class="form-control" value="<?=$sportif_prenom?>" style="padding-left: 15px;">
                             </div>
                             <div class="form-group">
                                 <label>Nom</label>
-                                <input type="text" class="form-control" value="Mouhib" style="padding-left: 15px;">
+                                <input type="text" class="form-control" value="<?=$sportif_nom?>" style="padding-left: 15px;">
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label>Email</label>
-                            <input type="email" class="form-control" value="yassine.m@email.com" style="padding-left: 15px;">
+                            <input type="email" class="form-control" value="<?=$sportif_email?>" style="padding-left: 15px;">
                         </div>
 
                         <div class="form-group">
                             <label>Téléphone</label>
-                            <input type="tel" class="form-control" value="+212 6XX-XXXXXX" style="padding-left: 15px;">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Date de naissance</label>
-                            <input type="date" class="form-control" value="1995-03-15" style="padding-left: 15px;">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Sports d'intérêt</label>
-                            <input type="text" class="form-control" value="Football, Tennis" style="padding-left: 15px;" placeholder="Séparés par des virgules">
+                            <input type="tel" class="form-control" value="<?=$sportif_phone?>" style="padding-left: 15px;">
                         </div>
 
                         <button type="submit" class="btn-submit">

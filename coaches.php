@@ -1,5 +1,10 @@
-<?php 
+<?php
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+    require "auth_check.php";
     require "connect.php";
+    
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -11,22 +16,33 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <?php 
+        $profil_Sportif=$connect->prepare("select * from Sportif where id_sportif = ?");
+        $profil_Sportif->bind_param("i",$current_user['user_id']);
+        $profil_Sportif->execute();
+        $result = $profil_Sportif->get_result();
+        $row = $result->fetch_assoc();
+        $sportif_photo = $row['sportif_photo'];
+        $sportif_nom = $row['sportif_nom'];
+        $sportif_prenom = $row['sportif_prenom'];
+        $sportif_email = $row['sportif_email'];
+        $sportif_phone = $row['sportif_phone'];
+    ?>
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
-            <a href="index.php" class="logo">
+            <a href="dashboard-athlete.php" class="logo">
                 <i class="fas fa-dumbbell"></i>
                 <span>SportCoach</span>
             </a>
-            <ul class="nav-menu" id="navMenu">
-                <li><a href="index.php" class="nav-link"><i class="fas fa-home"></i> Accueil</a></li>
-                <li><a href="coaches.php" class="nav-link"><i class="fas fa-users"></i> Nos Coachs</a></li>
-                <li><a href="login.php" class="btn-secondary"><i class="fas fa-sign-in-alt"></i> Connexion</a></li>
-                <li><a href="register.php" class="btn-primary"><i class="fas fa-user-plus"></i> Inscription</a></li>
+            <ul class="nav-menu">
+                <li><a href="coaches.php" class="nav-link"><i class="fas fa-users"></i> Trouver un coach</a></li>
+                <li style="display: flex; align-items: center; gap: 10px;">
+                    <img src="<?=$sportif_photo?>" alt="<?= $sportif_nom .' '.$sportif_prenom ?>" style="width: 35px; height: 35px; border-radius: 50%;">
+                    <span style="color: var(--primary-dark); font-weight: 600;"><?= $sportif_nom .' '.$sportif_prenom ?></span>
+                </li>
+                <li><a href="index.php" class="btn-secondary"><i class="fas fa-sign-out-alt"></i> Déconnexion</a></li>
             </ul>
-            <button class="mobile-menu-toggle" id="mobileMenuToggle">
-                <i class="fas fa-bars"></i>
-            </button>
         </div>
     </nav>
 
@@ -69,64 +85,83 @@
     <!-- Coaches Grid -->
     <section class="coaches-section">
         <div class="coaches-grid" id="coachesGrid">
-            
-            <!-- ========== COACH 1 - Ahmed Benali ========== -->
+            <?php 
+                $coaches=$connect->prepare("select * from Coach");
+                $coaches->execute();
+                $result = $coaches->get_result();
+                $coaches = $result->fetch_all(MYSQLI_ASSOC);
+                foreach ($coaches as $coach): ?>
+
             <div class="coach-card" data-sport="football">
-                <img src="https://images.unsplash.com/photo-1605454621097-d3a93d4e3f5f?w=400&h=300&fit=crop" alt="Coach Ahmed Benali" class="coach-image">
+                <img src="<?=$coach['coach_photo']?>" alt="Coach <?= $coach['coach_nom'] .' '.$coach['coach_prenom'] ?>" class="coach-image">
                 <div class="coach-info">
                     <div class="coach-header">
                         <div>
-                            <h3 class="coach-name">Ahmed Benali</h3>
-                            <p class="coach-specialty">Football</p>
-                        </div>
-                        <div class="coach-rating">
-                            <i class="fas fa-star"></i> 4.9
+                            <h3 class="coach-name"><?= $coach['coach_nom'] .' '.$coach['coach_prenom'] ?></h3>
+                            <?php 
+                                $coach_disciplines=$connect->prepare("select discipline_nom from Discipline d
+                                                                    left join Coach_discipline cd on cd.id_discipline = d.id_discipline
+                                                                    where cd.id_coach = ?;");
+                                $coach_disciplines->bind_param("i",$coach['id_coach']);
+                                $coach_disciplines->execute();
+                                $result = $coach_disciplines->get_result();
+                                $coach_disciplines = $result->fetch_all(MYSQLI_ASSOC);
+                                foreach ($coach_disciplines as $coach_discipline): 
+                            ?>
+                            <span class="coach-specialty"><?= $coach_discipline['discipline_nom'] ?></span>
+                            <?php endforeach; ?>
                         </div>
                     </div>
                     <div class="coach-stats">
                         <div class="stat-item">
                             <i class="fas fa-medal"></i>
-                            <span>10 ans</span>
+                            <span><?=$coach['coach_annees_experiences']?></span>
                         </div>
                         <div class="stat-item">
                             <i class="fas fa-users"></i>
-                            <span>150+ élèves</span>
+                            <?php  
+                                $sportifs_associes = $connect->prepare("
+                                    select count(s.id_sportif) as totalSportifs from Sportif s
+                                    inner join Reservation r on r.id_sportif = s.id_sportif
+                                    where r.id_coach = ?");
+                                $sportifs_associes->bind_param("i", $coach['id_coach']);
+                                $sportifs_associes->execute();
+
+                                $result = $sportifs_associes->get_result();
+                                $row = $result->fetch_assoc();
+                                $totalSportifs = $row['totalSportifs'];
+                            ?>
+                            <span><?= $totalSportifs ?></span>
                         </div>
                         <div class="stat-item">
                             <i class="fas fa-certificate"></i>
-                            <span>Certifié CAF</span>
+                            <span><?= $coach['coach_biographie'] ?></span>
                         </div>
                     </div>
-                    <div class="coach-tags">
-                        <span class="tag">Technique</span>
-                        <span class="tag">Tactique</span>
-                        <span class="tag">Jeunes</span>
-                    </div>
                     <div class="coach-actions">
-                        <button class="btn-view" onclick="viewCoachProfile(1)">
+                        <button class="btn-view" onclick="viewCoachProfile(<?= $coach['id_coach'] ?>)">
                             <i class="fas fa-eye"></i> Voir profil
                         </button>
-                        <button class="btn-book" onclick="bookSession(1)">
+                        <button class="btn-book" onclick="bookSession(<?= $coach['id_coach'] ?>)">
                             <i class="fas fa-calendar-plus"></i> Réserver
                         </button>
                     </div>
                 </div>
             </div>
-
-            <!-- Contenu Modal Coach 1 (CACHÉ) -->
-            <div id="coachModalContent1" style="display: none;">
+            
+            <!-- Contenu Modal (CACHÉ) -->
+            <div id="coachModalContent<?= $coach['id_coach'] ?>" style="display: none;">
                 <div style="text-align: center; margin-bottom: 25px;">
-                    <img src="https://images.unsplash.com/photo-1605454621097-d3a93d4e3f5f?w=400&h=300&fit=crop" 
-                         alt="Ahmed Benali" 
-                         style="width: 120px; height: 120px; border-radius: 50%; margin-bottom: 15px; object-fit: cover;">
-                    <h2 style="color: var(--primary-dark); margin-bottom: 5px;">Ahmed Benali</h2>
-                    <p style="color: var(--primary-gold); font-weight: 600; font-size: 18px;">Football</p>
+                    <img src="<?=$coach['coach_photo']?>" alt="<?= $coach['coach_nom'] .' '.$coach['coach_prenom'] ?>" style="width: 120px; height: 120px; border-radius: 50%; margin-bottom: 15px; object-fit: cover;">
+                    <h2 style="color: var(--primary-dark); margin-bottom: 5px;"><?= $coach['coach_nom'] .' '.$coach['coach_prenom'] ?></h2>
+                    <?php
+                        foreach ($coach_disciplines as $coach_discipline): 
+                    ?>
+                        <span style="color: var(--primary-gold); font-weight: 600; font-size: 18px;"><?= $coach_discipline['discipline_nom'] ?></span>
+                    <?php endforeach; ?>
                     <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px;">
-                        <span style="color: var(--primary-gold); font-size: 20px;">
-                            <i class="fas fa-star"></i> 4.9
-                        </span>
                         <span style="color: var(--text-gray);">•</span>
-                        <span style="color: var(--text-gray);">150+ élèves</span>
+                        <span style="color: var(--text-gray);"><?= $totalSportifs ?></span>
                     </div>
                 </div>
                 
@@ -135,7 +170,7 @@
                         <i class="fas fa-user"></i> À propos
                     </h3>
                     <p style="color: var(--text-gray); line-height: 1.8;">
-                        Coach de football professionnel avec 10 ans d'expérience. Spécialisé dans le développement technique et tactique des jeunes joueurs. Formation certifiée CAF Licence A.
+                        <?= $coach['coach_biographie'] ?>
                     </p>
                 </div>
                 
@@ -143,118 +178,12 @@
                     <div style="background-color: var(--primary-light); padding: 15px; border-radius: 10px;">
                         <i class="fas fa-medal" style="color: var(--primary-gold); font-size: 20px; margin-bottom: 8px; display: block;"></i>
                         <strong style="color: var(--primary-dark);">Expérience</strong>
-                        <p style="color: var(--text-gray); margin-top: 5px;">10 ans</p>
+                        <p style="color: var(--text-gray); margin-top: 5px;"><?=$coach['coach_annees_experiences']?>ans</p>
                     </div>
                     <div style="background-color: var(--primary-light); padding: 15px; border-radius: 10px;">
                         <i class="fas fa-certificate" style="color: var(--primary-gold); font-size: 20px; margin-bottom: 8px; display: block;"></i>
                         <strong style="color: var(--primary-dark);">Certification</strong>
-                        <p style="color: var(--text-gray); margin-top: 5px;">Certifié CAF</p>
-                    </div>
-                </div>
-                
-                <div style="background-color: var(--primary-light); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                    <h3 style="color: var(--primary-dark); margin-bottom: 15px;">
-                        <i class="fas fa-clock"></i> Disponibilités
-                    </h3>
-                    <p style="color: var(--text-gray); margin-bottom: 8px;">
-                        <i class="fas fa-check-circle" style="color: var(--success);"></i> Lundi - Vendredi: 14h - 20h
-                    </p>
-                    <p style="color: var(--text-gray); margin-bottom: 8px;">
-                        <i class="fas fa-check-circle" style="color: var(--success);"></i> Samedi: 9h - 18h
-                    </p>
-                </div>
-                
-                <div style="background-color: var(--primary-light); padding: 20px; border-radius: 10px; margin-bottom: 25px; text-align: center;">
-                    <h3 style="color: var(--primary-dark); margin-bottom: 10px;">
-                        <i class="fas fa-tag"></i> Tarif
-                    </h3>
-                    <p style="color: var(--primary-gold); font-size: 24px; font-weight: bold;">200 DH/heure</p>
-                </div>
-                
-                <button onclick="bookSession(1)" class="btn-submit" style="width: 100%;">
-                    <i class="fas fa-calendar-plus"></i> Réserver une séance
-                </button>
-            </div>
-
-            <!-- ========== COACH 2 - Fatima Zahra ========== -->
-            <div class="coach-card" data-sport="tennis">
-                <img src="https://images.unsplash.com/photo-1622163642998-1ea32b0bbc67?w=400&h=300&fit=crop" alt="Coach Fatima Zahra" class="coach-image">
-                <div class="coach-info">
-                    <div class="coach-header">
-                        <div>
-                            <h3 class="coach-name">Fatima Zahra</h3>
-                            <p class="coach-specialty">Tennis</p>
-                        </div>
-                        <div class="coach-rating">
-                            <i class="fas fa-star"></i> 5.0
-                        </div>
-                    </div>
-                    <div class="coach-stats">
-                        <div class="stat-item">
-                            <i class="fas fa-medal"></i>
-                            <span>8 ans</span>
-                        </div>
-                        <div class="stat-item">
-                            <i class="fas fa-users"></i>
-                            <span>80+ élèves</span>
-                        </div>
-                        <div class="stat-item">
-                            <i class="fas fa-certificate"></i>
-                            <span>Certifiée ITF</span>
-                        </div>
-                    </div>
-                    <div class="coach-tags">
-                        <span class="tag">Service</span>
-                        <span class="tag">Revers</span>
-                        <span class="tag">Compétition</span>
-                    </div>
-                    <div class="coach-actions">
-                        <button class="btn-view" onclick="viewCoachProfile(2)">
-                            <i class="fas fa-eye"></i> Voir profil
-                        </button>
-                        <button class="btn-book" onclick="bookSession(2)">
-                            <i class="fas fa-calendar-plus"></i> Réserver
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Contenu Modal Coach 2 (CACHÉ) -->
-            <div id="coachModalContent2" style="display: none;">
-                <div style="text-align: center; margin-bottom: 25px;">
-                    <img src="https://images.unsplash.com/photo-1622163642998-1ea32b0bbc67?w=400&h=300&fit=crop" 
-                         alt="Fatima Zahra" 
-                         style="width: 120px; height: 120px; border-radius: 50%; margin-bottom: 15px; object-fit: cover;">
-                    <h2 style="color: var(--primary-dark); margin-bottom: 5px;">Fatima Zahra</h2>
-                    <p style="color: var(--primary-gold); font-weight: 600; font-size: 18px;">Tennis</p>
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px;">
-                        <span style="color: var(--primary-gold); font-size: 20px;">
-                            <i class="fas fa-star"></i> 5.0
-                        </span>
-                        <span style="color: var(--text-gray);">•</span>
-                        <span style="color: var(--text-gray);">80+ élèves</span>
-                    </div>
-                </div>
-                
-                <div style="background-color: var(--primary-light); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                    <h3 style="color: var(--primary-dark); margin-bottom: 15px;">
-                        <i class="fas fa-user"></i> À propos
-                    </h3>
-                    <p style="color: var(--text-gray); line-height: 1.8;">
-                        Coach de tennis certifiée ITF. Spécialiste en préparation aux compétitions et perfectionnement technique. Accompagnement personnalisé pour tous niveaux.
-                    </p>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                    <div style="background-color: var(--primary-light); padding: 15px; border-radius: 10px;">
-                        <i class="fas fa-medal" style="color: var(--primary-gold); font-size: 20px; margin-bottom: 8px; display: block;"></i>
-                        <strong style="color: var(--primary-dark);">Expérience</strong>
-                        <p style="color: var(--text-gray); margin-top: 5px;">8 ans</p>
-                    </div>
-                    <div style="background-color: var(--primary-light); padding: 15px; border-radius: 10px;">
-                        <i class="fas fa-certificate" style="color: var(--primary-gold); font-size: 20px; margin-bottom: 8px; display: block;"></i>
-                        <strong style="color: var(--primary-dark);">Certification</strong>
-                        <p style="color: var(--text-gray); margin-top: 5px;">Certifiée ITF</p>
+                        <p style="color: var(--text-gray); margin-top: 5px;"><?=$coach['biographie']?></p>
                     </div>
                 </div>
                 
@@ -278,6 +207,7 @@
                     <i class="fas fa-calendar-plus"></i> Réserver une séance
                 </button>
             </div>
+            <?php endforeach; ?>
 
         </div>
 

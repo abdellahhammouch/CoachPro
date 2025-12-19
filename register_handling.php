@@ -45,11 +45,12 @@
             }
         }
         
-        // ========== REGISTER COACH ==========
         elseif ($userType === "coach") {
             
             $biographie = $_POST['biographie'];
             $disciplines = $_POST['disciplines'];
+            $experiences = $_POST['experience'];
+            $prix = $_POST['prix'];
             
             $checkEmail=$connect->prepare("select id_coach from Coach where coach_email = ?");
             $checkEmail->bind_param("s",$email);
@@ -60,8 +61,8 @@
                 $error = "Cet email existe déjà";
             } else {
 
-                $sql = $connect->prepare("insert into Coach (coach_nom, coach_prenom, coach_email, coach_phone, coach_password, coach_photo, coach_biographie) values (?, ?, ?, ?, ?, ?, ?)");
-                $sql->bind_param("sssssss",$nom,$prenom,$email,$phone,$photo,$password_hashed,$biographie);
+                $sql = $connect->prepare("insert into Coach (coach_nom, coach_prenom, coach_email, coach_phone, coach_password, coach_photo, coach_biographie, coach_annees_experiences,coach_prix) values (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $sql->bind_param("sssssssii",$nom,$prenom,$email,$phone,$photo,$password_hashed,$biographie,$experiences, $prix);
 
                 if ($sql->execute()) {
                     

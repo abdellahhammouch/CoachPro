@@ -22,7 +22,7 @@
     <!-- Navigation -->
     <nav class="navbar" id="navbar">
         <div class="nav-container">
-            <a href="index.php" class="logo">
+            <a href="dashboard-coach.php" class="logo">
                 <i class="fas fa-dumbbell"></i>
                 <span>SportCoach</span>
             </a>
