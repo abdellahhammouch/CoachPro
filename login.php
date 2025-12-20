@@ -2,6 +2,7 @@
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
     error_reporting(E_ALL);
+    session_start(); 
     require "connect.php";
 ?>
 
@@ -12,7 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion - SportCoach</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="issets/style.css">
 </head>
 <body>
     <!-- Navigation -->
@@ -40,7 +41,20 @@
             <h2>Connexion</h2>
             <p>Accédez à votre espace personnel</p>
         </div>
+        <?php if (isset($_SESSION['error'])): ?>
+            <div style="background: #fee2e2; border: 2px solid #dc2626; color: #dc2626; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 600;">
+                <i class="fas fa-exclamation-triangle"></i> <?= $_SESSION['error'] ?>
+            </div>
+            <?php unset($_SESSION['error']);?>
+        <?php endif; ?>
         
+        <?php if (isset($_SESSION['success'])): ?>
+            <div style="background: #d1fae5; border: 2px solid #10b981; color: #065f46; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 600;">
+                <i class="fas fa-check-circle"></i> <?= $_SESSION['success'] ?>
+            </div>
+            <?php unset($_SESSION['success']);?>
+        <?php endif; ?>
+
         <form id="loginForm" action="login_handling.php" method="POST">
             <div class="form-group">
                 <label for="email">Email</label>
@@ -137,7 +151,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="auth.js"></script>
-    <script src="main.js"></script>
+    <script src="issets/auth.js"></script>
+    <script src="issets/main.js"></script>
 </body>
 </html>

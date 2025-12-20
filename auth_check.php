@@ -12,7 +12,6 @@ if (!isset($_SESSION['user_id'])) {
 $current_user = [
     'user_id' => $_SESSION['user_id'],
     'user_name' => $_SESSION['user_name'],
-    'user_email' => $_SESSION['user_email'],
     'user_type' => $_SESSION['user_type']
-]
+];
 ?>

@@ -13,7 +13,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SportCoach - Trouvez votre coach sportif idéal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="issets/style.css">
 </head>
 <body>
     <!-- Navigation -->
@@ -168,6 +168,6 @@
         </div>
     </footer>
 
-    <script src="main.js"></script>
+    <script src="issets/main.js"></script>
 </body>
 </html>²

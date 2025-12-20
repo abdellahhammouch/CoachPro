@@ -18,10 +18,11 @@ create table Coach (
     coach_prenom varchar(50),
     coach_email varchar(100),
     coach_phone varchar(20),
-    coach_password VARCHAR(255)
+    coach_password VARCHAR(255),
     coach_photo varchar(255),
     coach_biographie varchar(255),
-    coach_annees_experiences integer
+    coach_annees_experiences integer,
+    coach_prix integer
 );
 
 create table Discipline (

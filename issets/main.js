@@ -79,47 +79,6 @@ function showSection(sectionName) {
     window.scrollTo(0, 0);
 }
 
-// ==================== FORM VALIDATION ====================
-function validateEmail(email) {
-    const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return re.test(email);
-}
-
-function validatePhone(phone) {
-    const re = /^(\+212|0)[5-7][0-9]{8}$/;
-    return re.test(phone);
-}
-
-function validatePassword(password) {
-    const re = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-    return re.test(password);
-}
-
-function validateName(name) {
-    const re = /^[a-zA-ZÀ-ÿ\s]{2,}$/;
-    return re.test(name);
-}
-
-function showError(fieldId, errorId) {
-    const field = document.getElementById(fieldId);
-    const error = document.getElementById(errorId);
-
-    if (field && error) {
-        field.classList.add('error');
-        error.style.display = 'block';
-    }
-}
-
-function hideError(fieldId, errorId) {
-    const field = document.getElementById(fieldId);
-    const error = document.getElementById(errorId);
-
-    if (field && error) {
-        field.classList.remove('error');
-        error.style.display = 'none';
-    }
-}
-
 // ==================== SWEETALERT FUNCTIONS ====================
 function showSuccessAlert(title, text) {
     if (typeof Swal !== 'undefined') {
@@ -202,18 +161,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (submitBtn && !submitBtn.disabled) {
                 submitBtn.disabled = true;
                 setTimeout(function () {
-                    submitBtn.disablednull = false;
+                    submitBtn.disabled = false;
                 }, 3000);
             }
         });
     }
 });
-
-const select = document.getElementById("hiddenInput");
-
-
-
-
-  select.addEventListener("input", () => {
-    const values = [...select.selectedOptions].map(o => o.value);
-  });

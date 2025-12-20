@@ -1,30 +1,33 @@
-// ==================== SIMPLE VALIDATION - EASY TO UNDERSTAND ====================
+// ==================== SIMPLE VALIDATION - ALL IN ONE FILE ====================
 
 // Wait for page to load
 document.addEventListener('DOMContentLoaded', function() {
     
     // Hide all error messages when page loads
-    let allErrors = document.querySelectorAll('.error-message');
-    for (let i = 0; i < allErrors.length; i++) {
+    var allErrors = document.querySelectorAll('.error-message');
+    for (var i = 0; i < allErrors.length; i++) {
         allErrors[i].style.display = 'none';
     }
     
     // ==================== LOGIN FORM ====================
-    let loginForm = document.getElementById('loginForm');
+    var loginForm = document.getElementById('loginForm');
     
     if (loginForm) {
         loginForm.addEventListener('submit', function(e) {
             e.preventDefault(); // Stop form from submitting immediately
             
             // Get the input values
-            let email = document.getElementById('email').value;
-            let password = document.getElementById('password').value;
-            let userType = document.getElementById('userType').value;
+            var email = document.getElementById('email').value;
+            var password = document.getElementById('password').value;
+            var userType = document.getElementById('userType').value;
             
-            let formIsValid = true; // We assume form is valid
+            var formIsValid = true; // We assume form is valid
             
-            // Check email
-            if (email === '' || !email.includes('@')) {
+            // Check email using regex
+            // Regex: something@something.something
+            var emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            
+            if (email === '' || !emailRegex.test(email)) {
                 document.getElementById('emailError').style.display = 'block';
                 document.getElementById('email').style.borderColor = 'red';
                 formIsValid = false;
@@ -61,9 +64,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // ==================== REGISTER FORM ====================
-    let registerForm = document.getElementById('registerForm');
-    let userTypeSelect = document.getElementById('userType');
-    let coachFields = document.getElementById('coachFields');
+    var registerForm = document.getElementById('registerForm');
+    var userTypeSelect = document.getElementById('userType');
+    var coachFields = document.getElementById('coachFields');
     
     // Show coach fields when coach is selected
     if (userTypeSelect && coachFields) {
@@ -81,16 +84,16 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault(); // Stop form from submitting immediately
             
             // Get all input values
-            let userType = document.getElementById('userType').value;
-            let firstName = document.getElementById('firstName').value;
-            let lastName = document.getElementById('lastName').value;
-            let email = document.getElementById('email').value;
-            let phone = document.getElementById('phone').value;
-            let password = document.getElementById('password').value;
-            let confirmPassword = document.getElementById('confirmPassword').value;
-            let terms = document.getElementById('terms').checked;
+            var userType = document.getElementById('userType').value;
+            var firstName = document.getElementById('firstName').value;
+            var lastName = document.getElementById('lastName').value;
+            var email = document.getElementById('email').value;
+            var phone = document.getElementById('phone').value;
+            var password = document.getElementById('password').value;
+            var confirmPassword = document.getElementById('confirmPassword').value;
+            var terms = document.getElementById('terms').checked;
             
-            let formIsValid = true;
+            var formIsValid = true;
             
             // Check user type
             if (userType === '') {
@@ -100,8 +103,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('userTypeError').style.display = 'none';
             }
             
-            // Check first name
-            if (firstName === '' || firstName.length < 2) {
+            // Check first name using regex
+            // Regex: at least 2 letters, only letters and spaces
+            var nameRegex = /^[a-zA-ZÀ-ÿ\s]{2,}$/;
+            
+            if (firstName === '' || !nameRegex.test(firstName)) {
                 document.getElementById('firstNameError').style.display = 'block';
                 formIsValid = false;
             } else {
@@ -109,30 +115,39 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Check last name
-            if (lastName === '' || lastName.length < 2) {
+            if (lastName === '' || !nameRegex.test(lastName)) {
                 document.getElementById('lastNameError').style.display = 'block';
                 formIsValid = false;
             } else {
                 document.getElementById('lastNameError').style.display = 'none';
             }
             
-            // Check email
-            if (email === '' || !email.includes('@')) {
+            // Check email using regex
+            // Regex: name@domain.com format
+            var emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            
+            if (email === '' || !emailRegex.test(email)) {
                 document.getElementById('emailError').style.display = 'block';
                 formIsValid = false;
             } else {
                 document.getElementById('emailError').style.display = 'none';
             }
             
-            // Check phone
-            if (phone === '' || phone.length < 10) {
+            // Check phone number using regex
+            // Regex: 0612345678 or +212612345678
+            var phoneRegex = /^(\+212|0)[5-7][0-9]{8}$/;
+            
+            // Remove spaces and dashes from phone before checking
+            var cleanPhone = phone.replace(/\s/g, '').replace(/-/g, '');
+            
+            if (phone === '' || !phoneRegex.test(cleanPhone)) {
                 document.getElementById('phoneError').style.display = 'block';
                 formIsValid = false;
             } else {
                 document.getElementById('phoneError').style.display = 'none';
             }
             
-            // Check password
+            // Check password (at least 6 characters)
             if (password === '' || password.length < 6) {
                 document.getElementById('passwordError').style.display = 'block';
                 formIsValid = false;
@@ -156,18 +171,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.getElementById('termsError').style.display = 'none';
             }
             
-            // For coach, check disciplines
+            // For coach, check disciplines - NO ALERT, use error div
             if (userType === 'coach') {
-                let disciplines = document.getElementById('hiddenInput').value;
-                if (disciplines === '') {
-                    alert('Veuillez sélectionner au moins une discipline');
+                var hiddenInput = document.getElementById('hiddenInput');
+                var disciplineError = document.getElementById('disciplineError');
+                
+                if (hiddenInput && hiddenInput.value === '') {
+                    // Show error message below disciplines
+                    if (disciplineError) {
+                        disciplineError.style.display = 'block';
+                    }
                     formIsValid = false;
+                } else {
+                    // Hide error message
+                    if (disciplineError) {
+                        disciplineError.style.display = 'none';
+                    }
                 }
             }
             
             // If everything is valid, submit the form
             if (formIsValid) {
-                registerForm.submit(); // Now actually submit the form
+                registerForm.submit();
             }
         });
     }
@@ -175,7 +200,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ==================== PASSWORD VISIBILITY TOGGLE ====================
 function togglePasswordVisibility(inputId) {
-    let input = document.getElementById(inputId);
+    var input = document.getElementById(inputId);
     if (input) {
         if (input.type === 'password') {
             input.type = 'text';

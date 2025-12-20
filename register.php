@@ -17,8 +17,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscription - SportCoach</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="register.css">
+    <link rel="stylesheet" href="issets/style.css">
+    <link rel="stylesheet" href="issets/register.css">
 </head>
 
 <body>
@@ -81,7 +81,7 @@
                         <i class="fas fa-user"></i>
                         <input type="text" name="prenom" id="firstName" class="form-control" placeholder="Votre prénom" required>
                     </div>
-                    <span class="error-message" id="firstNameError">Le prénom est requis (min. 2 caractères)</span>
+                    <span class="error-message" id="firstNameError">Veuillez entrer un prénom valide(pas de chiffres,min 2 caractères)</span>
                 </div>
 
                 <div class="form-group">
@@ -90,7 +90,7 @@
                         <i class="fas fa-user"></i>
                         <input type="text" name="nom" id="lastName" class="form-control" placeholder="Votre nom" required>
                     </div>
-                    <span class="error-message" id="lastNameError">Le nom est requis (min. 2 caractères)</span>
+                    <span class="error-message" id="lastNameError">Veuillez entrer un nom valide(pas de chiffres,min 2 caractères)</span>
                 </div>
             </div>
 
@@ -109,7 +109,7 @@
                     <i class="fas fa-phone"></i>
                     <input type="tel" name="phone" id="phone" class="form-control" placeholder="+212 6XX-XXXXXX" required>
                 </div>
-                <span class="error-message" id="phoneError">Format: +212 6XX-XXXXXX ou 06XX-XXXXXX</span>
+                <span class="error-message" id="phoneError">Veuillez entrer un numero de telephone valide</span>
             </div>
 
             <div class="form-group">
@@ -118,7 +118,7 @@
                     <i class="fas fa-lock"></i>
                     <input type="password" name="password" id="password" class="form-control" placeholder="Min. 8 caractères" required>
                 </div>
-                <span class="error-message" id="passwordError">8 caractères min. (majuscule, minuscule, chiffre)</span>
+                <span class="error-message" id="passwordError">8 caractères min. (majuscule, minuscule, chiffres)</span>
             </div>
 
             <div class="form-group">
@@ -145,6 +145,9 @@
                         <i class="fas fa-info-circle"></i>
                         Cliquez sur les disciplines pour les sélectionner
                     </p>
+
+                    <span class="error-message" id="disciplineError">Veuillez sélectionner au moins une discipline</span>
+
                     <div class="choices">
                         <span class="choice" data-value="Football"><i class="fas fa-futbol"></i> Football</span>
                         <span class="choice" data-value="Tennis"><i class="fas fa-table-tennis"></i> Tennis</span>
@@ -167,6 +170,13 @@
                 <div class="form-group">
                     <label for="biographie"><i class="fas fa-pen"></i> Biographie</label>
                     <textarea name="biographie" id="biographie" class="form-control" rows="4" placeholder="Parlez de votre expérience, votre approche et votre expertise..." style="padding: 12px; resize: vertical; border-radius: 8px; border: 2px solid #F5E6D3;"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="prix"><i class="fas fa-money-bill"></i> Tarif par heure (DH)</label>
+                <div class="input-group">
+                    <i class="fas fa-tag"></i>
+                    <input type="number" name="prix" id="prix" class="form-control" placeholder="Ex: 100" min="50">
                 </div>
             </div>
 
@@ -237,9 +247,9 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="register.js"></script>
-    <script src="auth.js"></script>
-    <script src="main.js"></script>
+    <script src="issets/register.js"></script>
+    <script src="issets/auth.js"></script>
+    <script src="issets/main.js"></script>
 </body>
 
 </html>

@@ -10,13 +10,20 @@ function filterCoaches() {
     // Parcourir toutes les cards
     for (let i = 0; i < coachCards.length; i++) {
         const card = coachCards[i];
-        const coachName = card.querySelector('.coach-name').textContent.toLowerCase();
-        const coachSport = card.getAttribute('data-sport').toLowerCase();
-        const coachSpecialty = card.querySelector('.coach-specialty').textContent.toLowerCase();
+        const coachName = card.querySelector('.coach-name');
+        const coachSport = card.getAttribute('data-sport');
+        const coachSpecialty = card.querySelector('.coach-specialty');
+        
+        // Check if elements exist before accessing textContent
+        if (!coachName || !coachSpecialty) continue;
+        
+        const nameText = coachName.textContent.toLowerCase();
+        const specialtyText = coachSpecialty.textContent.toLowerCase();
+        const sportValue = coachSport ? coachSport.toLowerCase() : '';
         
         // Vérifier si correspond à la recherche
-        const matchesSearch = coachName.indexOf(searchInput) !== -1 || coachSpecialty.indexOf(searchInput) !== -1;
-        const matchesSport = !sportFilter || coachSport === sportFilter;
+        const matchesSearch = nameText.indexOf(searchInput) !== -1 || specialtyText.indexOf(searchInput) !== -1;
+        const matchesSport = !sportFilter || sportValue === sportFilter;
         
         // Afficher ou cacher la card
         if (matchesSearch && matchesSport) {
@@ -28,15 +35,17 @@ function filterCoaches() {
     }
     
     // Afficher ou cacher le message "Aucun résultat"
-    if (visibleCount === 0) {
-        noResultsMessage.style.display = 'block';
-    } else {
-        noResultsMessage.style.display = 'none';
+    if (noResultsMessage) {
+        if (visibleCount === 0) {
+            noResultsMessage.style.display = 'block';
+        } else {
+            noResultsMessage.style.display = 'none';
+        }
     }
 }
 
-// ==================== VIEW COACH PROFILE (Copier contenu caché vers modal) ====================
-function viewCoachProfile(coachId) {
+// ==================== VIEW COACH PROFILE (For Dashboard Modal) ====================
+function viewCoachProfileModal(coachId) {
     // Récupérer le contenu caché du coach
     const hiddenContent = document.getElementById('coachModalContent' + coachId);
     const modalContent = document.getElementById('modalContent');
@@ -49,15 +58,28 @@ function viewCoachProfile(coachId) {
     }
 }
 
-// ==================== BOOK SESSION (Redirection vers login) ====================
-function bookSession(coachId) {
+// ==================== BOOK SESSION (For Dashboard) ====================
+function bookSessionModal(coachId) {
     showConfirmAlert(
         'Réserver une séance',
-        'Connectez-vous pour réserver une séance avec ce coach',
+        'Voulez-vous réserver une séance avec ce coach ?',
         function() {
-            window.location.href = 'login.php';
+            // Here you would normally open a booking form or redirect
+            showSuccessAlert(
+                'Demande envoyée',
+                'Votre demande de réservation a été envoyée au coach. Vous recevrez une confirmation bientôt.'
+            );
         }
     );
+}
+
+// ==================== LEGACY FUNCTIONS (For standalone coaches.php if still used) ====================
+function viewCoachProfile(coachId) {
+    viewCoachProfileModal(coachId);
+}
+
+function bookSession(coachId) {
+    bookSessionModal(coachId);
 }
 
 // ==================== INITIALIZE (Événements sur filtres) ====================

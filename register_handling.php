@@ -60,9 +60,9 @@
             if ($resultCheckEmail->num_rows > 0) {
                 $error = "Cet email existe déjà";
             } else {
-
+                
                 $sql = $connect->prepare("insert into Coach (coach_nom, coach_prenom, coach_email, coach_phone, coach_password, coach_photo, coach_biographie, coach_annees_experiences,coach_prix) values (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $sql->bind_param("sssssssii",$nom,$prenom,$email,$phone,$photo,$password_hashed,$biographie,$experiences, $prix);
+                $sql->bind_param("sssssssii",$nom,$prenom,$email,$phone,$password_hashed,$photo,$biographie,$experiences, $prix);
 
                 if ($sql->execute()) {
                     
@@ -80,7 +80,6 @@
                         
                         if ($resultDiscipline->num_rows > 0) {
 
-                            
                             $row = $resultDiscipline->fetch_assoc();
                             $id_discipline = $row['id_discipline'];
                             
