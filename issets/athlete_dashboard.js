@@ -34,6 +34,21 @@ function bookSession(coachId) {
 // ==================== PROFILE FORM ====================
 document.addEventListener('DOMContentLoaded', function() {
     const profileForm = document.getElementById('athleteProfileForm');
+
+    // --------------------
+    // PHOTO PREVIEW (SIMPLE)
+    // --------------------
+    var photoInput = document.getElementById('athletePhotoInput');
+    var photoPreview = document.getElementById('athletePhotoPreview');
+
+    if (photoInput && photoPreview) {
+        photoInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                var url = URL.createObjectURL(this.files[0]);
+                photoPreview.src = url;
+            }
+        });
+    }
     
     if (profileForm) {
         profileForm.addEventListener('submit', function(e) {

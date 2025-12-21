@@ -5,7 +5,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (mobileMenuToggle && navMenu) {
         mobileMenuToggle.addEventListener('click', function () {
-            // Afficher ou cacher le menu
             if (navMenu.style.display === 'flex') {
                 navMenu.style.display = 'none';
             } else {
@@ -27,142 +26,81 @@ window.addEventListener('scroll', function () {
     }
 });
 
-// ==================== MODAL FUNCTIONS ====================
-function openModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'flex';
-        document.body.style.overflow = 'hidden';
-    }
-}
-
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-}
-
-// Fermer modal en cliquant à l'extérieur
-window.addEventListener('click', function (event) {
-    if (event.target.classList.contains('modal')) {
-        event.target.style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
-});
-
-// ==================== DASHBOARD SECTION NAVIGATION ====================
+// ==================== SHOW/HIDE SECTIONS ====================
 function showSection(sectionName) {
-    // Cacher toutes les sections
-    const sections = document.querySelectorAll('.dashboard-section');
-    for (let i = 0; i < sections.length; i++) {
+    // Hide all sections
+    var sections = document.querySelectorAll('.dashboard-section');
+    for (var i = 0; i < sections.length; i++) {
         sections[i].style.display = 'none';
     }
 
-    // Afficher la section sélectionnée
-    const targetSection = document.getElementById(sectionName + 'Section');
+    // Show the section you clicked
+    var targetSection = document.getElementById(sectionName + 'Section');
     if (targetSection) {
         targetSection.style.display = 'block';
     }
 
-    // Retirer active de tous les liens
-    const links = document.querySelectorAll('.sidebar-link');
-    for (let i = 0; i < links.length; i++) {
-        links[i].classList.remove('active');
+    // Remove active from all sidebar links
+    var links = document.querySelectorAll('.sidebar-link');
+    for (var j = 0; j < links.length; j++) {
+        links[j].classList.remove('active');
     }
 
-    // Ajouter active au lien cliqué
-    event.target.closest('.sidebar-link').classList.add('active');
+    // Add active to clicked link (safe: event may not exist)
+    var ev = (typeof event !== 'undefined') ? event : null;
+    var clicked = ev && ev.currentTarget ? ev.currentTarget : null;
+    if (clicked && clicked.classList) {
+        clicked.classList.add('active');
+    }
 
-    // Scroll en haut
+    // Scroll to top
     window.scrollTo(0, 0);
 }
 
-// ==================== SWEETALERT FUNCTIONS ====================
-function showSuccessAlert(title, text) {
-    if (typeof Swal !== 'undefined') {
-        Swal.fire({
-            icon: 'success',
-            title: title,
-            text: text,
-            confirmButtonColor: '#FEBA17'
-        });
-    } else {
-        alert(title + '\n' + text);
+
+// ==================== MODAL FUNCTIONS ====================
+function openModal(modalId) {
+    var modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'flex';
     }
 }
 
-function showErrorAlert(title, text) {
-    if (typeof Swal !== 'undefined') {
-        Swal.fire({
-            icon: 'error',
-            title: title,
-            text: text,
-            confirmButtonColor: '#FEBA17'
-        });
-    } else {
-        alert(title + '\n' + text);
+function closeModal(modalId) {
+    var modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
     }
 }
 
-function showConfirmAlert(title, text, confirmCallback) {
-    if (typeof Swal !== 'undefined') {
-        Swal.fire({
-            title: title,
-            text: text,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#FEBA17',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Oui',
-            cancelButtonText: 'Annuler'
-        }).then(function (result) {
-            if (result.isConfirmed && confirmCallback) {
-                confirmCallback();
-            }
-        });
-    } else {
-        if (confirm(title + '\n' + text)) {
-            if (confirmCallback) {
-                confirmCallback();
-            }
-        }
+// ==================== AUTO HIDE MESSAGES ====================
+window.addEventListener('DOMContentLoaded', function() {
+    var successMsg = document.querySelector('[style*="background: #d1fae5"]');
+    var errorMsg = document.querySelector('[style*="background: #fee2e2"]');
+    
+    if (successMsg) {
+        setTimeout(function() {
+            successMsg.style.display = 'none';
+        }, 5000);
     }
-}
-
-// ==================== LOADING INDICATOR ====================
-
-function showLoading() {
-    let loading = document.getElementById('loadingOverlay');
-    if (!loading) {
-        loading = document.createElement('div');
-        loading.id = 'loadingOverlay';
-        loading.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 9999;';
-        loading.innerHTML = '<div style="text-align: center; color: white;"><i class="fas fa-spinner fa-spin" style="font-size: 48px; color: #FEBA17;"></i><p style="margin-top: 20px; font-size: 18px;">Chargement...</p></div>';
-        document.body.appendChild(loading);
+    
+    if (errorMsg) {
+        setTimeout(function() {
+            errorMsg.style.display = 'none';
+        }, 5000);
     }
-    loading.style.display = 'flex';
-}
 
-function hideLoading() {
-    const loading = document.getElementById('loadingOverlay');
-    if (loading) {
-        loading.style.display = 'none';
-    }
-}
+    // --------------------
+    // COACH PHOTO PREVIEW (SIMPLE)
+    // --------------------
+    var coachPhotoInput = document.getElementById('coachPhotoInput');
+    var coachPhotoPreview = document.getElementById('coachPhotoPreview');
 
-// ==================== PREVENT DOUBLE SUBMIT ====================
-document.addEventListener('DOMContentLoaded', function () {
-    const forms = document.querySelectorAll('form');
-    for (let i = 0; i < forms.length; i++) {
-        forms[i].addEventListener('submit', function () {
-            const submitBtn = this.querySelector('button[type="submit"]');
-            if (submitBtn && !submitBtn.disabled) {
-                submitBtn.disabled = true;
-                setTimeout(function () {
-                    submitBtn.disabled = false;
-                }, 3000);
+    if (coachPhotoInput && coachPhotoPreview) {
+        coachPhotoInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                var url = URL.createObjectURL(this.files[0]);
+                coachPhotoPreview.src = url;
             }
         });
     }

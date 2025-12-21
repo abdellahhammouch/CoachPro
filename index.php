@@ -42,9 +42,6 @@
                 <h1>Trouvez votre <span class="highlight">coach sportif</span> idéal</h1>
                 <p>Réservez des séances personnalisées avec des coachs professionnels dans toutes les disciplines sportives. Atteignez vos objectifs avec un accompagnement sur mesure.</p>
                 <div class="hero-buttons">
-                    <a href="coaches.php" class="btn-primary">
-                        <i class="fas fa-search"></i> Découvrir les coachs
-                    </a>
                     <a href="register.php" class="btn-secondary">
                         <i class="fas fa-user-plus"></i> Créer un compte
                     </a>

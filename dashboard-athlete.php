@@ -22,14 +22,7 @@
     <link rel="stylesheet" href="issets/style.css">
 </head>
 <body>
-    <?php 
-        $my_sessions = $connect->prepare("select count(*) as total from Reservation where id_coach = ? and id_sportif = ?");
-        $my_sessions->bind_param("ii", $coach['id_coach'], $current_user['user_id']);
-        $my_sessions->execute();
-        $result = $my_sessions->get_result();
-        $row = $result->fetch_assoc();
-        $total_sessions = $row['total'];
-
+    <?php
         $profil_Sportif=$connect->prepare("select * from Sportif where id_sportif = ?");
         $profil_Sportif->bind_param("i",$current_user['user_id']);
         $profil_Sportif->execute();
@@ -131,14 +124,15 @@
                         </div>
                         <div class="stat-details">
                             <?php 
-                                $resrvation_approuved=$connect->prepare("select count(id_reservation) as total from Reservation where statut = 'acceptee'");
+                                $resrvation_approuved=$connect->prepare("select count(id_reservation) as total from Reservation where statut = 'acceptee' and id_sportif = ?");
+                                $resrvation_approuved->bind_param("i", $current_user['user_id']);
                                 $resrvation_approuved->execute();
                                 $result = $resrvation_approuved->get_result();
                                 $row = $result->fetch_assoc();
                                 $resrvation_approuved = $row['total'];
                             ?>
                             <h3><?=$resrvation_approuved?></h3>
-                            <p>Prochaine séance</p>
+                            <p>Séances confirmées</p>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -147,7 +141,8 @@
                         </div>
                         <div class="stat-details">
                             <?php 
-                                $resrvation_done=$connect->prepare("select count(id_reservation) as total from Reservation where statut = 'terminee'");
+                                $resrvation_done=$connect->prepare("select count(id_reservation) as total from Reservation where statut = 'terminee' and id_sportif = ?");
+                                $resrvation_done->bind_param("i", $current_user['user_id']);
                                 $resrvation_done->execute();
                                 $result = $resrvation_done->get_result();
                                 $row = $result->fetch_assoc();
@@ -175,33 +170,6 @@
                     </div>
                 </div>
 
-                <!-- Next Session Card -->
-                <div class="table-container" style="margin-bottom: 30px;">
-                    <div class="table-header">
-                        <h2><i class="fas fa-clock"></i> Prochaine séance</h2>
-                    </div>
-                    <div style="padding: 20px; display: flex; gap: 20px; align-items: center; background: linear-gradient(135deg, var(--primary-light) 0%, #ffffff 100%); border-radius: 10px;">
-                        <img src="https://ui-avatars.com/api/?name=Ahmed+Benali&background=FEBA17&color=fff" alt="Coach" style="width: 80px; height: 80px; border-radius: 50%;">
-                        <div style="flex: 1;">
-                            <h3 style="color: var(--primary-dark); margin-bottom: 5px;">Ahmed Benali</h3>
-                            <p style="color: var(--text-gray); margin-bottom: 10px;"><i class="fas fa-futbol"></i> Football - Technique de dribble</p>
-                            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-                                <span style="color: var(--primary-brown);"><i class="fas fa-calendar"></i> 19 Déc 2024</span>
-                                <span style="color: var(--primary-brown);"><i class="fas fa-clock"></i> 16:00 - 17:00</span>
-                                <span style="color: var(--primary-brown);"><i class="fas fa-map-marker-alt"></i> Stade Municipal</span>
-                            </div>
-                        </div>
-                        <div style="display: flex; gap: 10px; flex-direction: column;">
-                            <button class="btn-primary" style="padding: 10px 20px; white-space: nowrap;">
-                                <i class="fas fa-info-circle"></i> Détails
-                            </button>
-                            <button class="btn-reject" style="padding: 8px 20px; white-space: nowrap;">
-                                <i class="fas fa-times"></i> Annuler
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Recent Bookings -->
                 <div class="table-container">
                     <div class="table-header">
@@ -219,33 +187,71 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <?php
+                                // Get recent reservations (last 3)
+                                $recent_reservations = $connect->prepare("
+                                    SELECT r.*, c.coach_nom, c.coach_prenom, d.discipline_nom
+                                    FROM Reservation r
+                                    JOIN Coach c ON r.id_coach = c.id_coach
+                                    LEFT JOIN Discipline d ON r.id_discipline = d.id_discipline
+                                    WHERE r.id_sportif = ?
+                                    ORDER BY r.date_seance DESC, r.heure_debut DESC
+                                    LIMIT 3
+                                ");
+                                $recent_reservations->bind_param("i", $current_user['user_id']);
+                                $recent_reservations->execute();
+                                $result = $recent_reservations->get_result();
+                                $recent_reservations_list = $result->fetch_all(MYSQLI_ASSOC);
+
+                                if (count($recent_reservations_list) > 0):
+                                    foreach($recent_reservations_list as $reservation):
+
+                                        if ($reservation['statut'] == 'enattente') {
+                                            $status_label = 'En attente';
+                                            $status_class = 'pending';
+                                        } elseif ($reservation['statut'] == 'acceptee') {
+                                            $status_label = 'Confirmée';
+                                            $status_class = 'confirmed';
+                                        } elseif ($reservation['statut'] == 'refusee') {
+                                            $status_label = 'Refusée';
+                                            $status_class = 'cancelled';
+                                        } elseif ($reservation['statut'] == 'annulee') {
+                                            $status_label = 'Annulée';
+                                            $status_class = 'cancelled';
+                                        } elseif ($reservation['statut'] == 'terminee') {
+                                            $status_label = 'Terminée';
+                                            $status_class = 'confirmed';
+                                        } else {
+                                            $status_label = 'Inconnu';
+                                            $status_class = 'pending';
+                                        }
+                            ?>
                             <tr>
-                                <td><strong>Ahmed Benali</strong></td>
-                                <td>Football</td>
-                                <td>20 Déc 2024, 10:00</td>
-                                <td><span class="status-badge pending">En attente</span></td>
+                                <td><strong><?= $reservation['coach_prenom'] . ' ' . $reservation['coach_nom'] ?></strong></td>
+                                <td><?= $reservation['discipline_nom'] ?? 'Non spécifiée' ?></td>
+                                <td><?= date('d M Y', strtotime($reservation['date_seance'])) ?>, <?= substr($reservation['heure_debut'], 0, 5) ?></td>
+                                <td><span class="status-badge <?= $status_class ?>"><?= $status_label ?></span></td>
                                 <td class="action-buttons">
-                                    <button class="btn-view" onclick="viewBookingDetails(1)">Détails</button>
-                                    <button class="btn-reject" onclick="cancelBooking(1)">Annuler</button>
+                                    <?php if($reservation['statut'] == 'enattente'): ?>
+                                        <form method="POST" action="cancel_reservation.php" style="display: inline;">
+                                            <input type="hidden" name="reservation_id" value="<?= $reservation['id_reservation'] ?>">
+                                            <button type="submit" class="btn-reject" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette réservation?')">Annuler</button>
+                                        </form>
+                                    <?php else: ?>
+                                        <span style="color: var(--text-gray); font-size: 14px;">-</span>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
+                            <?php
+                                    endforeach;
+                                else:
+                            ?>
                             <tr>
-                                <td><strong>Fatima Zahra</strong></td>
-                                <td>Tennis</td>
-                                <td>21 Déc 2024, 14:00</td>
-                                <td><span class="status-badge pending">En attente</span></td>
-                                <td class="action-buttons">
-                                    <button class="btn-view" onclick="viewBookingDetails(2)">Détails</button>
-                                    <button class="btn-reject" onclick="cancelBooking(2)">Annuler</button>
+                                <td colspan="5" style="text-align: center; padding: 25px; color: var(--text-gray);">
+                                    Aucune réservation récente
                                 </td>
                             </tr>
-                            <tr>
-                                <td><strong>Ahmed Benali</strong></td>
-                                <td>Football</td>
-                                <td>19 Déc 2024, 16:00</td>
-                                <td><span class="status-badge confirmed">Confirmée</span></td>
-                                <td><button class="btn-view" onclick="viewBookingDetails(3)">Détails</button></td>
-                            </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -258,21 +264,26 @@
                     <p style="color: var(--text-gray);">Gérez toutes vos séances sportives</p>
                 </div>
 
+                <?php if (isset($_SESSION['success'])): ?>
+                    <div style="background: #d1fae5; border: 2px solid #10b981; color: #065f46; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 600;">
+                        <i class="fas fa-check-circle"></i> <?= $_SESSION['success'] ?>
+                    </div>
+                    <?php unset($_SESSION['success']); ?>
+                <?php endif; ?>
+
+                <?php if (isset($_SESSION['error'])): ?>
+                    <div style="background: #fee2e2; border: 2px solid #dc2626; color: #dc2626; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 600;">
+                        <i class="fas fa-exclamation-triangle"></i> <?= $_SESSION['error'] ?>
+                    </div>
+                    <?php unset($_SESSION['error']); ?>
+                <?php endif; ?>
+
                 <div class="table-container">
                     <div class="table-header">
                         <h2>Toutes mes réservations</h2>
-                        <div style="display: flex; gap: 10px;">
-                            <select class="form-control" style="width: auto; padding: 8px 15px;">
-                                <option>Tous les statuts</option>
-                                <option>En attente</option>
-                                <option>Confirmées</option>
-                                <option>Terminées</option>
-                                <option>Annulées</option>
-                            </select>
-                            <button class="btn-primary" onclick="showSection('findcoach')">
-                                <i class="fas fa-plus"></i> Nouvelle réservation
-                            </button>
-                        </div>
+                        <button class="btn-primary" onclick="showSection('findcoach')">
+                            <i class="fas fa-plus"></i> Nouvelle réservation
+                        </button>
                     </div>
                     <table>
                         <thead>
@@ -286,8 +297,89 @@
                                 <th>Actions</th>
                             </tr>
                         </thead>
-                        <tbody id="allBookingsTable">
-                            <!-- Populated by JavaScript -->
+                        <tbody>
+                            <?php 
+                                $my_reservations = $connect->prepare("
+                                    select r.*, 
+                                        c.coach_nom, c.coach_prenom, 
+                                        d.discipline_nom,
+                                        timediff(r.heure_fin, r.heure_debut) as duree
+                                    from Reservation r
+                                    join Coach c on r.id_coach = c.id_coach
+                                    left join Discipline d on r.id_discipline = d.id_discipline
+                                    where r.id_sportif = ?
+                                    order by r.date_seance desc, r.heure_debut desc");
+                                $my_reservations->bind_param("i", $current_user['user_id']);
+                                $my_reservations->execute();
+                                $result = $my_reservations->get_result();
+                                $my_reservations_list = $result->fetch_all(MYSQLI_ASSOC);
+                                
+                                if (count($my_reservations_list) > 0):
+                                    foreach($my_reservations_list as $reservation): 
+                                        $duree_parts = explode(':', $reservation['duree']);
+                                        $duree_hours = intval($duree_parts[0]);
+                                        $duree_minutes = intval($duree_parts[1]);
+                                        $duree_formatted = '';
+                                        if ($duree_hours > 0) {
+                                            $duree_formatted .= $duree_hours . 'h';
+                                        }
+                                        if ($duree_minutes > 0) {
+                                            $duree_formatted .= ($duree_hours > 0 ? ' ' : '') . $duree_minutes . 'min';
+                                        }
+                                        
+                                        if ($reservation['statut'] == 'enattente') {
+                                            $status_label = 'En attente';
+                                            $status_class = 'pending';
+                                        } elseif ($reservation['statut'] == 'acceptee') {
+                                            $status_label = 'Confirmée';
+                                            $status_class = 'confirmed';
+                                        } elseif ($reservation['statut'] == 'refusee') {
+                                            $status_label = 'Refusée';
+                                            $status_class = 'cancelled';
+                                        } elseif ($reservation['statut'] == 'annulee') {
+                                            $status_label = 'Annulée';
+                                            $status_class = 'cancelled';
+                                        } elseif ($reservation['statut'] == 'terminee') {
+                                            $status_label = 'Terminée';
+                                            $status_class = 'confirmed';
+                                        } else {
+                                            $status_label = 'Inconnu';
+                                            $status_class = 'pending';
+                                        }
+                            ?>
+                            <tr>
+                                <td>#<?= str_pad($reservation['id_reservation'], 3, '0', STR_PAD_LEFT) ?></td>
+                                <td><strong><?= $reservation['coach_prenom'] . ' ' . $reservation['coach_nom'] ?></strong></td>
+                                <td><?= $reservation['discipline_nom'] ?? 'Non spécifiée' ?></td>
+                                <td><?= date('d M Y', strtotime($reservation['date_seance'])) ?>, <?= substr($reservation['heure_debut'], 0, 5) ?></td>
+                                <td><?= $duree_formatted ?></td>
+                                <td><span class="status-badge <?= $status_class ?>"><?= $status_label ?></span></td>
+                                <td class="action-buttons">
+                                    <?php if($reservation['statut'] == 'enattente'): ?>
+                                        <form method="POST" action="cancel_reservation.php" style="display: inline;">
+                                            <input type="hidden" name="reservation_id" value="<?= $reservation['id_reservation'] ?>">
+                                            <button type="submit" class="btn-reject" onclick="return confirm('Êtes-vous sûr de vouloir annuler cette réservation?')">Annuler</button>
+                                        </form>
+                                    <?php else: ?>
+                                        <span style="color: var(--text-gray); font-size: 14px;">-</span>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <?php 
+                                    endforeach;
+                                else: 
+                            ?>
+                            <tr>
+                                <td colspan="7" style="text-align: center; padding: 40px; color: var(--text-gray);">
+                                    <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 10px; display: block;"></i>
+                                    Vous n'avez aucune réservation pour le moment
+                                    <br><br>
+                                    <button class="btn-primary" onclick="showSection('findcoach')">
+                                        <i class="fas fa-search"></i> Trouver un coach
+                                    </button>
+                                </td>
+                            </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -460,17 +552,27 @@
                     <p style="color: var(--text-gray);">Les coachs avec qui vous travaillez</p>
                 </div>
 
+                
                 <div class="coaches-grid" style="max-width: 1200px;">
                     <?php 
-                        $mycoaches=$connect->prepare("select distinct c.* from Coach c 
-                                                    inner join Reservation r on r.id_coach = c.id_coach
-                                                    where r.id_sportif = ?");
-                        $mycoaches->bind_param("i",$current_user['user_id']);
+                        // Coaches that the athlete has already reserved with
+                        $mycoaches = $connect->prepare("
+                            SELECT c.*, 
+                                   COUNT(r.id_reservation) AS total_seances,
+                                   MIN(r.date_seance) AS since_date
+                            FROM Coach c
+                            INNER JOIN Reservation r ON r.id_coach = c.id_coach
+                            WHERE r.id_sportif = ? AND r.statut != 'refusee' AND r.statut != 'annulee'
+                            GROUP BY c.id_coach
+                            ORDER BY since_date DESC
+                        ");
+                        $mycoaches->bind_param("i", $current_user['user_id']);
                         $mycoaches->execute();
                         $result = $mycoaches->get_result();
-                        $mycoaches = $result->fetch_all(MYSQLI_ASSOC);
-                        if (count($mycoaches) > 0) :
-                        foreach ($mycoaches as $coach):
+                        $mycoaches_list = $result->fetch_all(MYSQLI_ASSOC);
+
+                        if (count($mycoaches_list) > 0) :
+                            foreach ($mycoaches_list as $coach):
                     ?>
                     <div class="coach-card">
                         <img src="<?=$coach['coach_photo']?>" alt="<?= $coach['coach_nom'] .' '.$coach['coach_prenom'] ?>" class="coach-image">
@@ -492,75 +594,45 @@
                                     <?php endforeach; ?>
                                 </div>
                             </div>
-                            <div class="coach-stats">
-                                <div class="stat-item">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>8 séances</span>
-                                </div>
-                                <div class="stat-item">
-                                    <i class="fas fa-calendar"></i>
-                                    <span>Depuis 2 mois</span>
-                                </div>
-                            </div>
-                            <div class="coach-actions">
-                                <button class="btn-view" onclick="viewCoachProfile(1)">
-                                    <i class="fas fa-eye"></i> Voir profil
-                                </button>
-                                <button class="btn-book" onclick="bookSession(1)">
-                                    <i class="fas fa-calendar-plus"></i> Réserver
-                                </button>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="coach-card">
-                        <img src="https://images.unsplash.com/photo-1622163642998-1ea32b0bbc67?w=400&h=300&fit=crop" alt="Coach" class="coach-image">
-                        <div class="coach-info">
-                            <div class="coach-header">
-                                <div>
-                                    <h3 class="coach-name">Fatima Zahra</h3>
-                                    <p class="coach-specialty">Tennis</p>
-                                </div>
-                                <div class="coach-rating">
-                                    <i class="fas fa-star"></i> 5.0
-                                </div>
-                            </div>
                             <div class="coach-stats">
                                 <div class="stat-item">
                                     <i class="fas fa-check-circle"></i>
-                                    <span>4 séances</span>
+                                    <span><?= intval($coach['total_seances']) ?> séances</span>
                                 </div>
-                                <divdisplay: none; class="stat-item">
+                                <div class="stat-item">
                                     <i class="fas fa-calendar"></i>
-                                    <span>Depuis 1 mois</span>
-                                </divdisplay:>
+                                    <span>Depuis <?= date('d/m/Y', strtotime($coach['since_date'])) ?></span>
+                                </div>
                             </div>
+
                             <div class="coach-actions">
-                                <button class="btn-view" onclick="viewCoachProfile(2)">
+                                <button class="btn-view" onclick="viewCoachProfileModal(<?= $coach['id_coach'] ?>)">
                                     <i class="fas fa-eye"></i> Voir profil
                                 </button>
-                                <button class="btn-book" onclick="bookSession(2)">
+                                <button class="btn-book" onclick="bookSessionModal(<?= $coach['id_coach'] ?>)">
                                     <i class="fas fa-calendar-plus"></i> Réserver
                                 </button>
                             </div>
                         </div>
                     </div>
+                    <?php 
+                            endforeach; 
+                        else :
+                    ?>
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <i class="fas fa-users" style="font-size: 64px;"></i>
+                        <h3>Vous n'avez pas encore de coach</h3>
+                        <p>Trouvez un coach professionnel pour commencer</p>
+                        <button class="btn-primary" onclick="showSection('findcoach')">
+                            <i class="fas fa-search"></i> Trouver un coach
+                        </button>
+                    </div>
+                    <?php endif; ?>
                 </div>
-                <?php endforeach; 
-                else :?>
-                <div style="text-align: center; padding: 60px 20px;">
-                    <i class="fas fa-users" style="font-size: 64px;"></i>
-                    <h3>Vous n'avez pas encore de coach</h3>
-                    <p>Trouvez un coach professionnel pour commencer</p>
-                    <button class="btn-primary" onclick="showSection('findcoach')">
-                        <i class="fas fa-search"></i> Trouver un coach
-                    </button>
-                </div>
-                <?php endif; ?>
             </div>
-        </div>
 
-        <!-- Profile Section -->
+<!-- Profile Section -->
         <div id="profileSection" class="dashboard-section" style="display: none;">
             <div class="dashboard-header">
                 <h1>Mon Profil</h1>
@@ -582,10 +654,14 @@
             <?php endif; ?>
 
             <div class="table-container">
-                <form id="athleteProfileForm" action="update_athlete_profile.php" method="POST" style="max-width: 700px; margin: 0 auto;">
+                <form id="athleteProfileForm" action="update_athlete.php" method="POST" enctype="multipart/form-data" style="max-width: 700px; margin: 0 auto;">
                     <div style="text-align: center; margin-bottom: 30px;">
-                        <img src="<?=$sportif_photo?>" alt="<?= $sportif_nom .' '.$sportif_prenom ?>" style="width: 120px; height: 120px; border-radius: 50%; margin-bottom: 15px;">
-                        <button type="button" class="btn-secondary">
+                        <img id="athletePhotoPreview" src="<?=$sportif_photo?>" alt="<?= $sportif_nom .' '.$sportif_prenom ?>" style="width: 120px; height: 120px; border-radius: 50%; margin-bottom: 15px; object-fit: cover;">
+
+                        <!-- Hidden file input for photo -->
+                        <input type="file" name="photo" id="athletePhotoInput" accept="image/*" style="display: none;">
+
+                        <button type="button" class="btn-secondary" onclick="document.getElementById('athletePhotoInput').click();">
                             <i class="fas fa-camera"></i> Changer la photo
                         </button>
                     </div>
@@ -617,6 +693,10 @@
                 </form>
             </div>
         </div>
+
+        </main>
+    </div>
+
 
         <!-- Coach Profile Modal -->
         <div class="modal" id="coachModal" style="display: none;">

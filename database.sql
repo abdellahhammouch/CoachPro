@@ -55,8 +55,10 @@ create table Reservation (
     heure_debut time,
     heure_fin time,
     statut varchar(50),
+    id_discipline INTEGER,
     foreign key (id_sportif) references Sportif(id_sportif),
-    foreign key (id_coach) references Coach(id_coach)
+    foreign key (id_coach) references Coach(id_coach),
+    foreign key (id_discipline) references Discipline(id_discipline)
 );
 
 create table Coach_certificat (

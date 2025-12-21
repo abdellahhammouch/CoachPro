@@ -11,7 +11,7 @@
     }
 
     // Get coach information
-    $profil_Coach = $connect->prepare("select * from Coach where id_coach = ?");
+    $profil_Coach = $connect->prepare("SELECT * FROM Coach WHERE id_coach = ?");
     $profil_Coach->bind_param("i", $current_user['user_id']);
     $profil_Coach->execute();
     $result = $profil_Coach->get_result();
@@ -24,6 +24,71 @@
     $coach_biographie = $row['coach_biographie'];
     $coach_experience = $row['coach_annees_experiences'];
     $coach_prix = $row['coach_prix'];
+
+    // Get statistics - DYNAMIC
+    // Count pending reservations
+    $pending_query = $connect->prepare("SELECT COUNT(*) as total FROM Reservation WHERE id_coach = ? AND statut = 'enattente'");
+    $pending_query->bind_param("i", $current_user['user_id']);
+    $pending_query->execute();
+    $pending_result = $pending_query->get_result();
+    $pending_count = $pending_result->fetch_assoc()['total'];
+
+    // Count confirmed reservations
+    $confirmed_query = $connect->prepare("SELECT COUNT(*) as total FROM Reservation WHERE id_coach = ? AND statut = 'acceptee'");
+    $confirmed_query->bind_param("i", $current_user['user_id']);
+    $confirmed_query->execute();
+    $confirmed_result = $confirmed_query->get_result();
+    $confirmed_count = $confirmed_result->fetch_assoc()['total'];
+
+    // Count completed reservations
+    $completed_query = $connect->prepare("SELECT COUNT(*) as total FROM Reservation WHERE id_coach = ? AND statut = 'terminee'");
+    $completed_query->bind_param("i", $current_user['user_id']);
+    $completed_query->execute();
+    $completed_result = $completed_query->get_result();
+    $completed_count = $completed_result->fetch_assoc()['total'];
+
+    // Count total unique athletes
+    $athletes_query = $connect->prepare("SELECT COUNT(DISTINCT id_sportif) as total FROM Reservation WHERE id_coach = ?");
+    $athletes_query->bind_param("i", $current_user['user_id']);
+    $athletes_query->execute();
+    $athletes_result = $athletes_query->get_result();
+    $athletes_count = $athletes_result->fetch_assoc()['total'];
+
+    // Get recent reservations (last 3)
+    $recent_reservations = $connect->prepare("
+        SELECT r.*, s.sportif_nom, s.sportif_prenom, d.discipline_nom 
+        FROM Reservation r
+        JOIN Sportif s ON r.id_sportif = s.id_sportif
+        LEFT JOIN Discipline d ON r.id_discipline = d.id_discipline
+        WHERE r.id_coach = ?
+        ORDER BY r.date_seance DESC, r.heure_debut DESC
+        LIMIT 3
+    ");
+    $recent_reservations->bind_param("i", $current_user['user_id']);
+    $recent_reservations->execute();
+    $result = $recent_reservations->get_result();
+    $recent_reservations_list = $result->fetch_all(MYSQLI_ASSOC);
+
+    // Get ALL reservations
+    $all_reservations = $connect->prepare("
+        SELECT r.*, s.sportif_nom, s.sportif_prenom, d.discipline_nom 
+        FROM Reservation r
+        JOIN Sportif s ON r.id_sportif = s.id_sportif
+        LEFT JOIN Discipline d ON r.id_discipline = d.id_discipline
+        WHERE r.id_coach = ?
+        ORDER BY r.date_seance DESC, r.heure_debut DESC
+    ");
+    $all_reservations->bind_param("i", $current_user['user_id']);
+    $all_reservations->execute();
+    $result = $all_reservations->get_result();
+    $all_reservations_list = $result->fetch_all(MYSQLI_ASSOC);
+
+    // Get coach availabilities
+    $availabilities = $connect->prepare("SELECT * FROM Disponibilite WHERE id_coach = ? ORDER BY date_disponibilite ASC, heure_debut ASC");
+    $availabilities->bind_param("i", $current_user['user_id']);
+    $availabilities->execute();
+    $result = $availabilities->get_result();
+    $availabilities_list = $result->fetch_all(MYSQLI_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -71,6 +136,12 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
+                    <a href="#" class="sidebar-link" onclick="showSection('availability')">
+                        <i class="fas fa-clock"></i>
+                        <span>Mes Disponibilités</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
                     <a href="#" class="sidebar-link" onclick="showSection('profile')">
                         <i class="fas fa-user-edit"></i>
                         <span>Mon Profil</span>
@@ -88,14 +159,14 @@
                     <p style="color: var(--text-gray);">Bienvenue dans votre espace coach</p>
                 </div>
 
-                <!-- Stats Grid -->
+                <!-- Stats Grid - DYNAMIC -->
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon pending">
                             <i class="fas fa-clock"></i>
                         </div>
                         <div class="stat-details">
-                            <h3>5</h3>
+                            <h3><?= $pending_count ?></h3>
                             <p>Réservations en attente</p>
                         </div>
                     </div>
@@ -104,7 +175,7 @@
                             <i class="fas fa-calendar-check"></i>
                         </div>
                         <div class="stat-details">
-                            <h3>12</h3>
+                            <h3><?= $confirmed_count ?></h3>
                             <p>Séances confirmées</p>
                         </div>
                     </div>
@@ -113,7 +184,7 @@
                             <i class="fas fa-check-circle"></i>
                         </div>
                         <div class="stat-details">
-                            <h3>48</h3>
+                            <h3><?= $completed_count ?></h3>
                             <p>Séances complétées</p>
                         </div>
                     </div>
@@ -122,13 +193,13 @@
                             <i class="fas fa-users"></i>
                         </div>
                         <div class="stat-details">
-                            <h3>23</h3>
+                            <h3><?= $athletes_count ?></h3>
                             <p>Sportifs totaux</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Recent Reservations -->
+                <!-- Recent Reservations - DYNAMIC -->
                 <div class="table-container">
                     <div class="table-header">
                         <h2>Réservations récentes</h2>
@@ -145,39 +216,54 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <?php foreach($recent_reservations_list as $reservation): ?>
                             <tr>
-                                <td><strong>Mohamed Alami</strong></td>
-                                <td>Football</td>
-                                <td>22 Déc 2024, 10:00</td>
-                                <td><span class="status-badge pending">En attente</span></td>
+                                <td><strong><?= $reservation['sportif_prenom'] . ' ' . $reservation['sportif_nom'] ?></strong></td>
+                                <td><?= $reservation['discipline_nom'] ?? 'Non spécifiée' ?></td>
+                                <td><?= date('d M Y', strtotime($reservation['date_seance'])) ?>, <?= substr($reservation['heure_debut'], 0, 5) ?></td>
+                                <td>
+                                    <?php if($reservation['statut'] == 'enattente'): ?>
+                                        <span class="status-badge pending">En attente</span>
+                                    <?php elseif($reservation['statut'] == 'acceptee'): ?>
+                                        <span class="status-badge confirmed">Confirmée</span>
+                                    <?php elseif($reservation['statut'] == 'refusee'): ?>
+                                        <span class="status-badge cancelled">Refusée</span>
+                                    <?php else: ?>
+                                        <span class="status-badge confirmed">Terminée</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td class="action-buttons">
-                                    <button class="btn-accept" onclick="acceptReservation(1)">Accepter</button>
-                                    <button class="btn-reject" onclick="rejectReservation(1)">Refuser</button>
+                                    <?php if($reservation['statut'] == 'enattente'): ?>
+                                        <form method="POST" action="handle_reservation.php" style="display: inline;">
+                                            <input type="hidden" name="reservation_id" value="<?= $reservation['id_reservation'] ?>">
+                                            <input type="hidden" name="action" value="accept">
+                                            <button type="submit" class="btn-accept">Accepter</button>
+                                        </form>
+                                        <form method="POST" action="handle_reservation.php" style="display: inline;">
+                                            <input type="hidden" name="reservation_id" value="<?= $reservation['id_reservation'] ?>">
+                                            <input type="hidden" name="action" value="reject">
+                                            <button type="submit" class="btn-reject">Refuser</button>
+                                        </form>
+                                    <?php else: ?>
+                                        <button class="btn-view">Détails</button>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
+                            <?php endforeach; ?>
+                            <?php if(count($recent_reservations_list) == 0): ?>
                             <tr>
-                                <td><strong>Fatima Zahra</strong></td>
-                                <td>Football</td>
-                                <td>23 Déc 2024, 14:00</td>
-                                <td><span class="status-badge pending">En attente</span></td>
-                                <td class="action-buttons">
-                                    <button class="btn-accept" onclick="acceptReservation(2)">Accepter</button>
-                                    <button class="btn-reject" onclick="rejectReservation(2)">Refuser</button>
+                                <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-gray);">
+                                    <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 10px; display: block;"></i>
+                                    Aucune réservation pour le moment
                                 </td>
                             </tr>
-                            <tr>
-                                <td><strong>Hassan Benani</strong></td>
-                                <td>Football</td>
-                                <td>21 Déc 2024, 16:00</td>
-                                <td><span class="status-badge confirmed">Confirmée</span></td>
-                                <td><button class="btn-view" onclick="viewReservationDetails(3)">Détails</button></td>
-                            </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Reservations Section -->
+            <!-- Reservations Section - DYNAMIC -->
             <div id="reservationsSection" class="dashboard-section" style="display: none;">
                 <div class="dashboard-header">
                     <h1>Mes Réservations</h1>
@@ -187,13 +273,6 @@
                 <div class="table-container">
                     <div class="table-header">
                         <h2>Toutes les réservations</h2>
-                        <select class="form-control" style="width: auto; padding: 8px 15px;">
-                            <option>Tous les statuts</option>
-                            <option>En attente</option>
-                            <option>Confirmées</option>
-                            <option>Terminées</option>
-                            <option>Refusées</option>
-                        </select>
                     </div>
                     <table>
                         <thead>
@@ -202,75 +281,119 @@
                                 <th>Sportif</th>
                                 <th>Discipline</th>
                                 <th>Date & Heure</th>
-                                <th>Durée</th>
                                 <th>Statut</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
+                            <?php foreach($all_reservations_list as $reservation): ?>
                             <tr>
-                                <td>#001</td>
-                                <td><strong>Mohamed Alami</strong></td>
-                                <td>Football</td>
-                                <td>22 Déc 2024, 10:00</td>
-                                <td>1h</td>
-                                <td><span class="status-badge pending">En attente</span></td>
+                                <td>#<?= str_pad($reservation['id_reservation'], 3, '0', STR_PAD_LEFT) ?></td>
+                                <td><strong><?= $reservation['sportif_prenom'] . ' ' . $reservation['sportif_nom'] ?></strong></td>
+                                <td><?= $reservation['discipline_nom'] ?? 'Non spécifiée' ?></td>
+                                <td><?= date('d M Y', strtotime($reservation['date_seance'])) ?>, <?= substr($reservation['heure_debut'], 0, 5) ?></td>
+                                <td>
+                                    <?php if($reservation['statut'] == 'enattente'): ?>
+                                        <span class="status-badge pending">En attente</span>
+                                    <?php elseif($reservation['statut'] == 'acceptee'): ?>
+                                        <span class="status-badge confirmed">Confirmée</span>
+                                    <?php elseif($reservation['statut'] == 'refusee'): ?>
+                                        <span class="status-badge cancelled">Refusée</span>
+                                    <?php else: ?>
+                                        <span class="status-badge confirmed">Terminée</span>
+                                    <?php endif; ?>
+                                </td>
                                 <td class="action-buttons">
-                                    <button class="btn-accept" onclick="acceptReservation(1)">Accepter</button>
-                                    <button class="btn-reject" onclick="rejectReservation(1)">Refuser</button>
+                                    <?php if($reservation['statut'] == 'enattente'): ?>
+                                        <form method="POST" action="handle_reservation.php" style="display: inline;">
+                                            <input type="hidden" name="reservation_id" value="<?= $reservation['id_reservation'] ?>">
+                                            <input type="hidden" name="action" value="accept">
+                                            <button type="submit" class="btn-accept">Accepter</button>
+                                        </form>
+                                        <form method="POST" action="handle_reservation.php" style="display: inline;">
+                                            <input type="hidden" name="reservation_id" value="<?= $reservation['id_reservation'] ?>">
+                                            <input type="hidden" name="action" value="reject">
+                                            <button type="submit" class="btn-reject">Refuser</button>
+                                        </form>
+                                    <?php else: ?>
+                                        <button class="btn-view">Détails</button>
+                                    <?php endif; ?>
                                 </td>
                             </tr>
+                            <?php endforeach; ?>
+                            <?php if(count($all_reservations_list) == 0): ?>
                             <tr>
-                                <td>#002</td>
-                                <td><strong>Fatima Zahra</strong></td>
-                                <td>Football</td>
-                                <td>23 Déc 2024, 14:00</td>
-                                <td>1h</td>
-                                <td><span class="status-badge pending">En attente</span></td>
-                                <td class="action-buttons">
-                                    <button class="btn-accept" onclick="acceptReservation(2)">Accepter</button>
-                                    <button class="btn-reject" onclick="rejectReservation(2)">Refuser</button>
+                                <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-gray);">
+                                    <i class="fas fa-inbox" style="font-size: 48px; margin-bottom: 10px; display: block;"></i>
+                                    Aucune réservation pour le moment
                                 </td>
                             </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Availability Section - NEW -->
+            <div id="availabilitySection" class="dashboard-section" style="display: none;">
+                <div class="dashboard-header">
+                    <h1>Mes Disponibilités</h1>
+                    <p style="color: var(--text-gray);">Gérez vos horaires de disponibilité</p>
+                </div>
+
+                <?php if (isset($_SESSION['success'])): ?>
+                    <div style="background: #d1fae5; border: 2px solid #10b981; color: #065f46; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 600;">
+                        <i class="fas fa-check-circle"></i> <?= $_SESSION['success'] ?>
+                    </div>
+                    <?php unset($_SESSION['success']); ?>
+                <?php endif; ?>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Mes créneaux horaires</h2>
+                        <button class="btn-primary" onclick="openModal('addAvailabilityModal')">
+                            <i class="fas fa-plus"></i> Ajouter un créneau
+                        </button>
+                    </div>
+                    <table>
+                        <thead>
                             <tr>
-                                <td>#003</td>
-                                <td><strong>Hassan Benani</strong></td>
-                                <td>Football</td>
-                                <td>21 Déc 2024, 16:00</td>
-                                <td>1h</td>
-                                <td><span class="status-badge confirmed">Confirmée</span></td>
-                                <td><button class="btn-view" onclick="viewReservationDetails(3)">Détails</button></td>
+                                <th>Date</th>
+                                <th>Jour</th>
+                                <th>Heure début</th>
+                                <th>Heure fin</th>
+                                <th>Actions</th>
                             </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach($availabilities_list as $avail): 
+                                // Get day name in French from date
+                                $date_obj = new DateTime($avail['date_disponibilite']);
+                                $day_number = $date_obj->format('N');
+                                $days_french = [1 => 'Lundi', 2 => 'Mardi', 3 => 'Mercredi', 4 => 'Jeudi', 5 => 'Vendredi', 6 => 'Samedi', 7 => 'Dimanche'];
+                                $jour_nom = $days_french[$day_number];
+                            ?>
                             <tr>
-                                <td>#004</td>
-                                <td><strong>Amina Tazi</strong></td>
-                                <td>Football</td>
-                                <td>20 Déc 2024, 11:00</td>
-                                <td>1.5h</td>
-                                <td><span class="status-badge confirmed">Terminée</span></td>
-                                <td><button class="btn-view" onclick="viewReservationDetails(4)">Détails</button></td>
-                            </tr>
-                            <tr>
-                                <td>#005</td>
-                                <td><strong>Youssef Idrissi</strong></td>
-                                <td>Football</td>
-                                <td>24 Déc 2024, 09:00</td>
-                                <td>1h</td>
-                                <td><span class="status-badge pending">En attente</span></td>
+                                <td><strong><?= date('d/m/Y', strtotime($avail['date_disponibilite'])) ?></strong></td>
+                                <td><?= $jour_nom ?></td>
+                                <td><?= substr($avail['heure_debut'], 0, 5) ?></td>
+                                <td><?= substr($avail['heure_fin'], 0, 5) ?></td>
                                 <td class="action-buttons">
-                                    <button class="btn-accept" onclick="acceptReservation(5)">Accepter</button>
-                                    <button class="btn-reject" onclick="rejectReservation(5)">Refuser</button>
+                                    <form method="POST" action="delete_availability.php" style="display: inline;">
+                                        <input type="hidden" name="disponibilite_id" value="<?= $avail['id_disponibilite'] ?>">
+                                        <button type="submit" class="btn-reject">Supprimer</button>
+                                    </form>
                                 </td>
                             </tr>
+                            <?php endforeach; ?>
+                            <?php if(count($availabilities_list) == 0): ?>
                             <tr>
-                                <td>#006</td>
-                                <td><strong>Sara Bennani</strong></td>
-                                <td>Football</td>
-                                <td>25 Déc 2024, 15:00</td>
-                                <td>1h</td>
-                                <td><span class="status-badge confirmed">Confirmée</span></td>
-                                <td><button class="btn-view" onclick="viewReservationDetails(6)">Détails</button></td>
+                                <td colspan="5" style="text-align: center; padding: 40px; color: var(--text-gray);">
+                                    <i class="fas fa-calendar-times" style="font-size: 48px; margin-bottom: 10px; display: block;"></i>
+                                    Vous n'avez pas encore ajouté de disponibilités
+                                </td>
                             </tr>
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -283,7 +406,6 @@
                     <p style="color: var(--text-gray);">Modifiez vos informations professionnelles</p>
                 </div>
 
-                <!-- SUCCESS/ERROR MESSAGES -->
                 <?php if (isset($_SESSION['success'])): ?>
                     <div style="background: #d1fae5; border: 2px solid #10b981; color: #065f46; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 600;">
                         <i class="fas fa-check-circle"></i> <?= $_SESSION['success'] ?>
@@ -299,10 +421,14 @@
                 <?php endif; ?>
 
                 <div class="table-container">
-                    <form id="coachProfileForm" action="update_coach_profile.php" method="POST" style="max-width: 700px; margin: 0 auto;">
+                    <form id="coachProfileForm" action="update_coach.php" method="POST" enctype="multipart/form-data" style="max-width: 700px; margin: 0 auto;">
                         <div style="text-align: center; margin-bottom: 30px;">
-                            <img src="<?=$coach_photo?>" alt="<?= $coach_nom .' '.$coach_prenom ?>" style="width: 120px; height: 120px; border-radius: 50%; margin-bottom: 15px;">
-                            <button type="button" class="btn-secondary">
+                            <img id="coachPhotoPreview" src="<?=$coach_photo?>" alt="<?= $coach_nom .' '.$coach_prenom ?>" style="width: 120px; height: 120px; border-radius: 50%; margin-bottom: 15px; object-fit: cover;">
+
+                            <!-- Hidden file input for photo -->
+                            <input type="file" name="photo" id="coachPhotoInput" accept="image/*" style="display: none;">
+
+                            <button type="button" class="btn-secondary" onclick="document.getElementById('coachPhotoInput').click();">
                                 <i class="fas fa-camera"></i> Changer la photo
                             </button>
                         </div>
@@ -353,6 +479,35 @@
         </main>
     </div>
 
+    <!-- Add Availability Modal -->
+    <div class="modal" id="addAvailabilityModal" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Ajouter un créneau</h3>
+                <button class="close-modal" onclick="closeModal('addAvailabilityModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form method="POST" action="add_availability.php">
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" name="date_disponibilite" class="form-control" min="<?= date('Y-m-d') ?>" required>
+                </div>
+                <div class="form-group">
+                    <label>Heure de début</label>
+                    <input type="time" name="heure_debut" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>Heure de fin</label>
+                    <input type="time" name="heure_fin" class="form-control" required>
+                </div>
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-plus"></i> Ajouter
+                </button>
+            </form>
+        </div>
+    </div>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-bottom" style="padding: 20px;">
@@ -361,34 +516,8 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="main.js"></script>
-    <script>
-        // Simple functions for accept/reject reservations
-        function acceptReservation(id) {
-            showConfirmAlert(
-                'Accepter la réservation',
-                'Voulez-vous accepter cette réservation ?',
-                function() {
-                    // Here you will add the code to accept in database
-                    showSuccessAlert('Réservation acceptée', 'La réservation a été acceptée avec succès');
-                }
-            );
-        }
-
-        function rejectReservation(id) {
-            showConfirmAlert(
-                'Refuser la réservation',
-                'Voulez-vous refuser cette réservation ?',
-                function() {
-                    // Here you will add the code to reject in database
-                    showSuccessAlert('Réservation refusée', 'La réservation a été refusée');
-                }
-            );
-        }
-
-        function viewReservationDetails(id) {
-            showSuccessAlert('Détails', 'Ici vous verrez les détails de la réservation #' + id);
-        }
-    </script>
+    <script src="issets/main.js"></script>
+    <script src="issets/coach_dashboard.js" ></script>
+    <script src="issets/coaches.js"></script>
 </body>
 </html>

@@ -39,9 +39,43 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         exit();
     }
     
+    // -------------------------------
+    // PHOTO UPLOAD (SIMPLE)
+    // -------------------------------
+    // If user selected an image, save it in /uploads and update sportif_photo
+    $newPhotoPath = '';
+
+    if (isset($_FILES['photo']) && isset($_FILES['photo']['name']) && $_FILES['photo']['name'] !== '') {
+        if ($_FILES['photo']['error'] === 0) {
+            $uploadDir = 'uploads/';
+            if (!is_dir($uploadDir)) {
+                mkdir($uploadDir, 0777, true);
+            }
+
+            $originalName = basename($_FILES['photo']['name']);
+            $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+
+            // Allow only common image extensions
+            $allowed = array('jpg', 'jpeg', 'png', 'gif', 'webp');
+            if (in_array($ext, $allowed)) {
+                $newName = 'sportif_' . $user_id . '_' . time() . '.' . $ext;
+                $target = $uploadDir . $newName;
+
+                if (move_uploaded_file($_FILES['photo']['tmp_name'], $target)) {
+                    $newPhotoPath = $target; // ex: uploads/sportif_1_1700000000.jpg
+                }
+            }
+        }
+    }
+
     // Update the athlete's information
-    $updateQuery = $connect->prepare("UPDATE Sportif SET sportif_prenom = ?, sportif_nom = ?, sportif_email = ?, sportif_phone = ? WHERE id_sportif = ?");
-    $updateQuery->bind_param("ssssi", $prenom, $nom, $email, $phone, $user_id);
+    if ($newPhotoPath !== '') {
+        $updateQuery = $connect->prepare("UPDATE Sportif SET sportif_prenom = ?, sportif_nom = ?, sportif_email = ?, sportif_phone = ?, sportif_photo = ? WHERE id_sportif = ?");
+        $updateQuery->bind_param("sssssi", $prenom, $nom, $email, $phone, $newPhotoPath, $user_id);
+    } else {
+        $updateQuery = $connect->prepare("UPDATE Sportif SET sportif_prenom = ?, sportif_nom = ?, sportif_email = ?, sportif_phone = ? WHERE id_sportif = ?");
+        $updateQuery->bind_param("ssssi", $prenom, $nom, $email, $phone, $user_id);
+    }
     
     // Execute the update
     if ($updateQuery->execute()) {
